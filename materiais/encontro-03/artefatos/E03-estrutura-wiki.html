@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>E03 — A estrutura do LLM Wiki</title>
+<style>
+  :root {
+    --bg: #0f1115;
+    --panel: #181b22;
+    --panel-2: #1f232c;
+    --ink: #e8eaed;
+    --muted: #9aa3b2;
+    --accent: #6ea8fe;
+    --accent-2: #7ee787;
+    --warn: #f0b429;
+    --border: #2a2f3a;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.55;
+    padding: 48px 24px 80px;
+  }
+  .wrap { max-width: 980px; margin: 0 auto; }
+  header { margin-bottom: 40px; }
+  .eyebrow { color: var(--accent); font-weight: 700; letter-spacing: .08em; text-transform: uppercase; font-size: 13px; }
+  h1 { font-size: 34px; margin: 6px 0 8px; }
+  .sub { color: var(--muted); font-size: 17px; }
+  h2 { font-size: 22px; margin: 44px 0 16px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+  .quote {
+    background: var(--panel);
+    border-left: 4px solid var(--accent);
+    padding: 18px 22px;
+    border-radius: 8px;
+    font-size: 19px;
+    margin: 24px 0;
+  }
+  .quote span { color: var(--muted); font-size: 14px; display: block; margin-top: 8px; }
+  table { width: 100%; border-collapse: collapse; margin: 16px 0; background: var(--panel); border-radius: 8px; overflow: hidden; }
+  th, td { padding: 14px 16px; text-align: left; border-bottom: 1px solid var(--border); vertical-align: top; }
+  th { background: var(--panel-2); font-size: 14px; letter-spacing: .03em; color: var(--muted); text-transform: uppercase; }
+  td code { background: var(--panel-2); padding: 2px 6px; border-radius: 4px; color: var(--accent-2); font-size: 14px; }
+  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin: 16px 0; }
+  .card { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 20px; }
+  .card h3 { margin: 0 0 6px; font-size: 16px; }
+  .card.rag h3 { color: var(--muted); }
+  .card.wiki h3 { color: var(--accent-2); }
+  .layers { display: grid; gap: 14px; margin: 16px 0; }
+  .layer { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 18px 20px; display: grid; grid-template-columns: 140px 1fr 180px; gap: 16px; align-items: center; }
+  .layer .name { font-size: 18px; font-weight: 700; }
+  .layer .name code { font-size: 17px; }
+  .layer .who { color: var(--muted); font-size: 14px; text-align: right; }
+  .layer.raw { border-left: 4px solid var(--warn); }
+  .layer.wiki { border-left: 4px solid var(--accent-2); }
+  .layer.rule { border-left: 4px solid var(--accent); }
+  .ops { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 16px 0; }
+  .op { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
+  .op b { color: var(--accent); font-size: 16px; }
+  .loop { background: var(--panel); border: 1px dashed var(--accent); border-radius: 10px; padding: 18px 20px; margin: 16px 0; color: var(--ink); }
+  .loop b { color: var(--accent); }
+  code { font-family: "SF Mono", Menlo, Consolas, monospace; }
+  footer { margin-top: 50px; color: var(--muted); font-size: 13px; border-top: 1px solid var(--border); padding-top: 16px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Encontro 03 · LLM Wiki e Agente de Código</div>
+    <h1>A estrutura: <code>raw/</code>, <code>wiki/</code>, <code>CLAUDE.md</code></h1>
+    <p class="sub">Base de conhecimento própria, onde o mesmo arquivo que você lê para trabalhar é o que o agente lê para executar.</p>
+  </header>
+
+  <div class="quote">
+    "Obsidian é a IDE; o LLM é o programador; a wiki é a base de código."
+    <span>— Andrej Karpathy, gist <code>llm-wiki</code>, 04/04/2026</span>
+  </div>
+
+  <h2>A mudança de ideia: RAG × LLM Wiki</h2>
+  <div class="cols">
+    <div class="card rag">
+      <h3>RAG — o padrão anterior</h3>
+      <ul>
+        <li>O trabalho acontece <b>a cada pergunta</b></li>
+        <li>Entre as perguntas <b>não existe nada</b></li>
+        <li>Cada resposta é remontada do zero</li>
+      </ul>
+    </div>
+    <div class="card wiki">
+      <h3>LLM Wiki</h3>
+      <ul>
+        <li>O trabalho acontece <b>uma vez, na ingestão</b></li>
+        <li>Entre as perguntas existe <b>uma wiki que cresce</b></li>
+        <li>Artefato permanente que se acumula</li>
+      </ul>
+    </div>
+  </div>
+  <p class="sub">RAG é cozinhar do zero toda vez que dá fome. O LLM Wiki é ter uma despensa organizada.</p>
+
+  <h2>Três camadas, uma pasta</h2>
+  <div class="layers">
+    <div class="layer raw">
+      <div class="name"><code>raw/</code></div>
+      <div>Fontes originais: lâmina PDF, ata, transcrição, planilha. <b>Nunca alterada.</b></div>
+      <div class="who">edita: você</div>
+    </div>
+    <div class="layer wiki">
+      <div class="name"><code>wiki/</code></div>
+      <div>Páginas markdown interligadas — sua base de conhecimento. Toda afirmação cita a fonte em <code>raw/</code>.</div>
+      <div class="who">edita: o modelo,<br>sob sua revisão</div>
+    </div>
+    <div class="layer rule">
+      <div class="name"><code>CLAUDE.md</code></div>
+      <div>Instrução persistente: como o modelo lê <code>raw/</code> e escreve <code>wiki/</code>. Vale em toda conversa.</div>
+      <div class="who">edita: você</div>
+    </div>
+  </div>
+
+  <h2>Três operações</h2>
+  <div class="ops">
+    <div class="op"><b>ingest</b><p>Uma fonte de <code>raw/</code> vira páginas em <code>wiki/</code>.</p></div>
+    <div class="op"><b>query</b><p>Perguntar à wiki — resposta com a sua base, não com o que o modelo acha.</p></div>
+    <div class="op"><b>lint</b><p>Auditar consistência: contradições, páginas órfãs, afirmações sem citação.</p></div>
+  </div>
+
+  <div class="loop">
+    <b>A seta que fecha o ciclo:</b> toda correção que você faz na revisão volta para o
+    <code>CLAUDE.md</code>. É o que faz o sistema melhorar sozinho, em vez de você repetir
+    a mesma correção todo mês.
+  </div>
+
+  <h2>O que o curso adiciona ao padrão original</h2>
+  <p>
+    A <b>regra de citação obrigatória</b>. No gist as citações são possibilidade;
+    aqui são condição: toda afirmação em <code>wiki/</code> aponta para o arquivo de
+    <code>raw/</code> de onde veio. O motivo é regulatório — o art. 23 da Resolução CVM 19
+    exige guarda por 5 anos da documentação que fundamentou recomendações.
+  </p>
+
+  <footer>
+    Mont Academy · Workshop Claude · Encontro 03 — material de apoio projetável.
+    Fonte do padrão: gist <code>llm-wiki</code> (Andrej Karpathy, abr/2026).
+  </footer>
+</div>
+</body>
+</html>
