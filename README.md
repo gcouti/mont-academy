@@ -28,17 +28,17 @@ materiais/
 
 | # | Branch | Tema |
 |---|--------|------|
-| 01 | `encontro-01` | _a definir_ |
-| 02 | `encontro-02` | _a definir_ |
-| 03 | `encontro-03` | _a definir_ |
-| 04 | `encontro-04` | _a definir_ |
-| 05 | `encontro-05` | _a definir_ |
-| 06 | `encontro-06` | _a definir_ |
-| 07 | `encontro-07` | _a definir_ |
-| 08 | `encontro-08` | _a definir_ |
-| 09 | `encontro-09` | _a definir_ |
-| 10 | `encontro-10` | _a definir_ |
-| 11 | `encontro-11` | _a definir_ |
+| 01 | `encontro-01` | Fundamentos, Modelo Mental e Segurança |
+| 02 | `encontro-02` | Diferenciar Ferramentas e Setup |
+| 03 | `encontro-03` | LLM, Wiki e Agente de Código |
+| 04 | `encontro-04` | Git e Versionamento |
+| 05 | `encontro-05` | Modelagem de Dados e CRM |
+| 06 | `encontro-06` | Ingestão e Tratamento de Dados |
+| 07 | `encontro-07` | Dashboard, APIs e Alertas |
+| 08 | `encontro-08` | Automação e Fluxo de Transcrição |
+| 09 | `encontro-09` | Revisão Humana e Reativação de Rede |
+| 10 | `encontro-10` | MCP Próprio e Operação |
+| 11 | `encontro-11` | Publicação, DNS e Apresentação Final |
 
 ## Fluxo de trabalho
 
