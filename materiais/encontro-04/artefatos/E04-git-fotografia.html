@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>E04 — Git: a fotografia da pasta</title>
+<style>
+  :root {
+    --bg: #0f1115;
+    --panel: #181b22;
+    --panel-2: #1f232c;
+    --term: #0b0d12;
+    --ink: #e8eaed;
+    --muted: #9aa3b2;
+    --accent: #6ea8fe;
+    --accent-2: #7ee787;
+    --warn: #f0b429;
+    --danger: #ff7a7a;
+    --border: #2a2f3a;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg); color: var(--ink); line-height: 1.55; padding: 40px 24px 80px;
+  }
+  .wrap { max-width: 1040px; margin: 0 auto; }
+  header { margin-bottom: 8px; }
+  .eyebrow { color: var(--accent); font-weight: 700; letter-spacing: .08em; text-transform: uppercase; font-size: 13px; }
+  h1 { font-size: 32px; margin: 6px 0 8px; }
+  .sub { color: var(--muted); font-size: 17px; }
+  h2 { font-size: 22px; margin: 36px 0 14px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+  h3 { font-size: 16px; margin: 22px 0 8px; }
+  code { font-family: "SF Mono", Menlo, Consolas, monospace; }
+  p code, li code, td code { background: var(--panel-2); padding: 2px 6px; border-radius: 4px; color: var(--accent-2); font-size: 13.5px; }
+
+  /* Tabs */
+  .tabs { display: flex; gap: 6px; margin: 22px 0 10px; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+  .tab-btn { background: transparent; border: none; color: var(--muted); font: inherit; font-weight: 600; font-size: 15px;
+    padding: 12px 16px; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+  .tab-btn:hover { color: var(--ink); }
+  .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .tab-panel { display: none; animation: fadeIn .25s ease; }
+  .tab-panel.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+  .card { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 20px; margin: 14px 0; }
+  .callout { background: var(--panel); border-left: 4px solid var(--accent); border-radius: 8px; padding: 16px 20px; margin: 16px 0; }
+  .callout.warn { border-left-color: var(--warn); }
+  .callout.danger { border-left-color: var(--danger); }
+  .callout b { color: var(--accent); }
+  .callout.warn b { color: var(--warn); }
+  .callout.danger b { color: var(--danger); }
+
+  /* Pasta com 7 versões */
+  .versions { font-family: "SF Mono", monospace; font-size: 13.5px; background: var(--term); border: 1px solid var(--border);
+    border-radius: 10px; padding: 16px 18px; }
+  .versions div { padding: 3px 0; color: var(--muted); }
+  .versions div::before { content: "📄 "; }
+  .versions .q { color: var(--danger); margin-top: 10px; }
+  .versions .q::before { content: "❓ "; }
+
+  /* Terminal */
+  .term-box { background: var(--term); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; margin: 10px 0; }
+  .term-bar { background: var(--panel-2); padding: 7px 12px; display: flex; gap: 6px; align-items: center; border-bottom: 1px solid var(--border); }
+  .term-bar i { width: 11px; height: 11px; border-radius: 50%; display: inline-block; }
+  .term-bar i:nth-child(1){ background:#ff5f56; } .term-bar i:nth-child(2){ background:#ffbd2e; } .term-bar i:nth-child(3){ background:#27c93f; }
+  .term-bar span { margin-left: 8px; color: var(--muted); font-size: 12px; font-family: "SF Mono", monospace; }
+  .term-body { padding: 14px 16px; font-family: "SF Mono", monospace; font-size: 13.5px; }
+  .term-body .line { white-space: pre-wrap; }
+  .term-body .prompt { color: var(--accent); }
+  .term-body .cmd { color: var(--accent-2); }
+  .term-body .out { color: var(--muted); }
+  .term-body .add { color: var(--accent-2); }
+  .term-body .del { color: var(--danger); }
+
+  /* Passo a passo */
+  .phase-tag { display: inline-block; font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--accent);
+    font-weight: 700; margin-top: 26px; }
+  .step { display: grid; grid-template-columns: 38px 1fr; gap: 14px; margin: 12px 0; align-items: start; }
+  .step .num { width: 34px; height: 34px; border-radius: 50%; background: var(--panel-2); border: 1px solid var(--border);
+    display: grid; place-items: center; font-weight: 700; color: var(--accent); }
+  .step .cmd-line { font-family: "SF Mono", monospace; font-size: 14.5px; background: var(--term); border: 1px solid var(--border);
+    border-radius: 8px; padding: 9px 12px; color: var(--accent-2); }
+  .step .cmd-line .p { color: var(--accent); }
+  .step .trad { color: var(--ink); margin: 6px 0 2px; }
+  .step .trad b { color: var(--accent); }
+  .step .note { color: var(--muted); font-size: 13.5px; }
+
+  table { width: 100%; border-collapse: collapse; margin: 14px 0; background: var(--panel); border-radius: 8px; overflow: hidden; }
+  th, td { padding: 12px 14px; text-align: left; border-bottom: 1px solid var(--border); vertical-align: top; }
+  th { background: var(--panel-2); font-size: 13px; letter-spacing: .03em; color: var(--muted); text-transform: uppercase; }
+
+  /* Diagrama dos três lugares (+ remoto) */
+  .places { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; align-items: stretch; margin: 18px 0 6px; }
+  .place { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 16px 14px; text-align: center; }
+  .place .pn { font-weight: 700; font-size: 15px; }
+  .place .pd { color: var(--muted); font-size: 13px; margin-top: 6px; }
+  .place.work { border-top: 3px solid var(--ink); }
+  .place.stage { border-top: 3px solid var(--warn); }
+  .place.hist { border-top: 3px solid var(--accent-2); }
+  .place.remote { border-top: 3px solid var(--accent); }
+  .arrow { display: grid; place-items: center; padding: 0 2px; }
+  .arrow .lbl { font-family: "SF Mono", monospace; font-size: 12px; color: var(--accent-2); background: var(--term);
+    border: 1px solid var(--border); border-radius: 6px; padding: 3px 7px; white-space: nowrap; }
+  .arrow .ar { color: var(--muted); font-size: 20px; line-height: 1; margin-top: 4px; }
+  .places-grid { display: grid; grid-template-columns: 1fr 64px 1fr 64px 1fr 64px 1fr; align-items: center; }
+  @media (max-width: 860px) { .places-grid { grid-template-columns: 1fr; } .arrow { padding: 6px 0; } .arrow .ar { transform: rotate(90deg); } }
+
+  /* Git graph (branch) */
+  .legend { display: flex; gap: 18px; flex-wrap: wrap; color: var(--muted); font-size: 13px; margin-top: 10px; }
+  .legend span { display: inline-flex; align-items: center; gap: 7px; }
+  .legend i { width: 11px; height: 11px; border-radius: 50%; display: inline-block; }
+
+  footer { margin-top: 48px; color: var(--muted); font-size: 13px; border-top: 1px solid var(--border); padding-top: 16px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Encontro 04 · Git e Versionamento</div>
+    <h1>Git: a fotografia da pasta</h1>
+    <p class="sub">Tirar uma foto do seu trabalho, ver o que mudou, voltar atrás e trabalhar em paralelo — sem medo de quebrar nada.</p>
+  </header>
+
+  <nav class="tabs" role="tablist">
+    <button class="tab-btn active" data-tab="porque">Por que Git</button>
+    <button class="tab-btn" data-tab="lugares">Os três lugares</button>
+    <button class="tab-btn" data-tab="passo">Passo a passo</button>
+    <button class="tab-btn" data-tab="branch">Branches</button>
+    <button class="tab-btn" data-tab="push">Push (GitHub)</button>
+  </nav>
+
+  <!-- ============ TAB 1: POR QUE ============ -->
+  <section class="tab-panel active" id="porque" role="tabpanel">
+    <h2>O problema: a pasta com sete versões</h2>
+    <p class="sub">Todo mundo já teve esta pasta:</p>
+    <div class="versions">
+      <div>proposta-cliente.docx</div>
+      <div>proposta-cliente-v2.docx</div>
+      <div>proposta-cliente-v2-REVISADA.docx</div>
+      <div>proposta-cliente-final.docx</div>
+      <div>proposta-cliente-final-ok.docx</div>
+      <div>proposta-cliente-final-ok-ESSA.docx</div>
+      <div>proposta-cliente-final-JOAO-alterou.docx</div>
+      <div class="q">Qual é a versão boa?</div>
+      <div class="q">O que mudou da quarta para a quinta?</div>
+      <div class="q">Consegue recuperar a redação que estava na segunda?</div>
+    </div>
+    <p>Ninguém sabe. <b>Git é a resposta a esse problema — e só isso.</b> Não é ferramenta de
+      programador; é ferramenta de quem tem arquivo que muda.</p>
+
+    <h2>O que é Git, em uma frase</h2>
+    <div class="card">
+      <p style="font-size:18px;margin:0">
+        Git tira uma <b style="color:var(--accent-2)">fotografia da pasta inteira</b> toda vez que você pede,
+        guarda todas as fotografias em ordem, e permite voltar para qualquer uma delas.
+      </p>
+    </div>
+    <p>Cada fotografia é um <b>commit</b>. Ela guarda três coisas:</p>
+    <table>
+      <tr><th>O commit guarda</th><th>Para quê</th></tr>
+      <tr><td>O estado de <b>todos</b> os arquivos</td><td>Voltar ao conjunto, não a um arquivo só</td></tr>
+      <tr><td>Quando foi tirada, e por quem</td><td>Saber quando algo mudou</td></tr>
+      <tr><td><b>Uma mensagem sua</b></td><td>Saber <i>por que</i> mudou</td></tr>
+    </table>
+
+    <div class="term-box">
+      <div class="term-bar"><i></i><i></i><i></i><span>git log — a linha do tempo de fotos</span></div>
+      <div class="term-body">
+        <div class="line"><span class="out">● wiki inicial</span></div>
+        <div class="line"><span class="out">● adiciona regra de citação no CLAUDE.md</span></div>
+        <div class="line"><span class="out">● ingere lâmina do fundo XP</span></div>
+        <div class="line"><span class="out">● corrige tom da carta mensal</span></div>
+        <div class="line"><span class="add">● ingere ata de 12/11  ← você está aqui</span></div>
+      </div>
+    </div>
+    <p class="sub">Cada bolinha é um estado completo e recuperável da sua pasta — não uma lista de alterações, mas uma lista de <b>versões inteiras</b>.</p>
+
+    <div class="callout">
+      <b>"Isso não vai encher meu computador de cópias?"</b> Não. O Git guarda só o que
+      <i>mudou</i> entre uma foto e a outra. Um ano de commits numa pasta de texto ocupa menos que um PDF.
+    </div>
+  </section>
+
+  <!-- ============ TAB 2: OS TRÊS LUGARES ============ -->
+  <section class="tab-panel" id="lugares" role="tabpanel">
+    <h2>Onde um arquivo pode estar</h2>
+    <p class="sub">O modelo mental que confunde todo iniciante. São três lugares na sua máquina — e um quarto, online (o GitHub), que entra no fim.</p>
+
+    <div class="places-grid">
+      <div class="place work"><div class="pn">1 · Pasta de trabalho</div><div class="pd">onde você e o agente editam de verdade</div></div>
+      <div class="arrow"><span class="lbl">git add</span><span class="ar">→</span></div>
+      <div class="place stage"><div class="pn">2 · Preparação</div><div class="pd">o que vai entrar na próxima foto</div></div>
+      <div class="arrow"><span class="lbl">git commit</span><span class="ar">→</span></div>
+      <div class="place hist"><div class="pn">3 · Histórico</div><div class="pd">todas as fotos, em ordem (local)</div></div>
+      <div class="arrow"><span class="lbl">git push</span><span class="ar">→</span></div>
+      <div class="place remote"><div class="pn">4 · GitHub</div><div class="pd">cópia online das fotos (backup)</div></div>
+    </div>
+    <div class="legend">
+      <span><i style="background:var(--ink)"></i>editar</span>
+      <span><i style="background:var(--warn)"></i>escolher o que entra</span>
+      <span><i style="background:var(--accent-2)"></i>bater a foto</span>
+      <span><i style="background:var(--accent)"></i>enviar para a nuvem</span>
+    </div>
+
+    <h3>E para voltar?</h3>
+    <p><code>git checkout</code> traz a pasta de trabalho de volta para o estado de uma foto do histórico. É a seta que fecha o ciclo — e a rede de segurança da aula.</p>
+
+    <div class="callout">
+      <b>Por que existe a preparação, e não é burocracia:</b> você mexeu em cinco arquivos,
+      mas só três formam uma mudança que faz sentido junto. A preparação deixa você
+      <b>escolher o que entra na foto</b>, para que cada commit conte uma história só.
+    </div>
+    <p class="sub">Analogia: a preparação é a mesa onde você junta os documentos antes de tirar a foto.
+      A pasta é o escritório todo; a foto registra só o que está na mesa.</p>
+
+    <div class="callout warn">
+      <b>Em dúvida, rode <code>git status</code>.</b> É o comando que responde "onde eu estou?" —
+      o mais importante e o menos ensinado.
+    </div>
+  </section>
+
+  <!-- ============ TAB 3: PASSO A PASSO ============ -->
+  <section class="tab-panel" id="passo" role="tabpanel">
+    <h2>Passo a passo — do zero à primeira foto</h2>
+
+    <div class="phase-tag">Fase 1 · começar a fotografar</div>
+    <div class="step">
+      <div class="num">1</div>
+      <div>
+        <div class="cmd-line"><span class="p">$</span> git init</div>
+        <div class="trad"><b>"Passe a fotografar esta pasta."</b></div>
+        <div class="note">Roda uma vez só, na pasta do curso. A partir daqui o Git acompanha tudo.</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="num">2</div>
+      <div>
+        <div class="cmd-line"><span class="p">$</span> git status</div>
+        <div class="trad"><b>"O que mudou desde a última foto?"</b></div>
+        <div class="note">O mais importante da lista. A regra da aula: em dúvida, rode <code>git status</code>.</div>
+      </div>
+    </div>
+
+    <div class="phase-tag">Fase 2 · a primeira foto</div>
+    <div class="step">
+      <div class="num">3</div>
+      <div>
+        <div class="cmd-line"><span class="p">$</span> git add .</div>
+        <div class="trad"><b>"Inclua tudo que mudou na próxima foto."</b></div>
+        <div class="note">Coloca os arquivos na mesa (preparação). Pode ser <code>git add arquivo.md</code> para escolher.</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="num">4</div>
+      <div>
+        <div class="cmd-line"><span class="p">$</span> git commit -m <span class="out">"wiki inicial"</span></div>
+        <div class="trad"><b>"Bata a foto e dê este nome a ela."</b></div>
+        <div class="note">A mensagem deve completar: <i>"se eu voltar para esta foto, eu volto para o momento em que…"</i></div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="num">5</div>
+      <div>
+        <div class="cmd-line"><span class="p">$</span> git log</div>
+        <div class="trad"><b>"Me mostre todas as fotos."</b></div>
+        <div class="note">Dica: <code>git log --oneline</code> mostra uma por linha.</div>
+      </div>
+    </div>
+
+    <div class="phase-tag">Fase 3 · errar de propósito e voltar atrás</div>
+    <div class="step">
+      <div class="num">6</div>
+      <div>
+        <div class="cmd-line"><span class="out"># apague metade de um arquivo da wiki e salve</span></div>
+        <div class="trad">Vamos destruir trabalho de propósito — para ver a rede funcionar.</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="num">7</div>
+      <div>
+        <div class="cmd-line"><span class="p">$</span> git diff</div>
+        <div class="trad"><b>"Mostre exatamente o que mudou, linha por linha."</b></div>
+        <div class="term-box" style="margin-top:8px">
+          <div class="term-bar"><i></i><i></i><i></i><span>git diff</span></div>
+          <div class="term-body">
+            <div class="line"><span class="out">  ## Perfil do cliente</span></div>
+            <div class="line"><span class="del">- Horizonte de aposentadoria; troca de imóvel em 2–3 anos.</span></div>
+            <div class="line"><span class="del">- Perfil moderado, prioriza renda.</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="num">8</div>
+      <div>
+        <div class="cmd-line"><span class="p">$</span> git checkout -- <span class="out">perfil-cliente.md</span></div>
+        <div class="trad"><b>"Volte este arquivo para o estado da última foto."</b></div>
+        <div class="note">Abra o arquivo: está inteiro de novo. Esse é o momento em que Git vira rede de segurança.</div>
+      </div>
+    </div>
+
+    <div class="callout danger">
+      <b>Com honestidade:</b> <code>git checkout</code> num arquivo <b>descarta</b> o que não foi commitado.
+      O que você apagou e não fotografou, foi. Daí a regra: <b>commit toda vez que algo funciona.</b>
+      Não precisa estar bonito — é ponto de restauração, e só existe rede onde você armou a rede.
+    </div>
+  </section>
+
+  <!-- ============ TAB 4: BRANCHES ============ -->
+  <section class="tab-panel" id="branch" role="tabpanel">
+    <h2>Branch: a versão paralela</h2>
+    <p><b>O problema que resolve:</b> a wiki está boa e você quer testar uma reorganização grande.
+      Se mexer direto e ficar ruim, você estraga o que estava bom.</p>
+    <p><code>main</code> é a versão que vale. <b>Branch é o rascunho paralelo.</b> Você troca entre as duas
+      com um comando, e o que acontece numa não afeta a outra.</p>
+
+    <svg viewBox="0 0 680 230" width="100%" style="max-width:680px;margin:16px 0" xmlns="http://www.w3.org/2000/svg" font-family="SF Mono, monospace">
+      <!-- main line -->
+      <line x1="40" y1="160" x2="640" y2="160" stroke="#7ee787" stroke-width="3"/>
+      <!-- branch line -->
+      <path d="M 300 160 C 340 160, 340 80, 380 80 L 560 80" fill="none" stroke="#6ea8fe" stroke-width="3"/>
+      <!-- main commits -->
+      <g fill="#7ee787">
+        <circle cx="80" cy="160" r="9"/><circle cx="180" cy="160" r="9"/><circle cx="300" cy="160" r="9"/>
+        <circle cx="440" cy="160" r="9"/><circle cx="600" cy="160" r="9"/>
+      </g>
+      <!-- branch commits -->
+      <g fill="#6ea8fe">
+        <circle cx="440" cy="80" r="9"/><circle cx="560" cy="80" r="9"/>
+      </g>
+      <!-- labels -->
+      <text x="78" y="190" fill="#9aa3b2" font-size="12" text-anchor="middle">wiki ok</text>
+      <text x="180" y="190" fill="#9aa3b2" font-size="12" text-anchor="middle">wiki ok v2</text>
+      <text x="300" y="190" fill="#9aa3b2" font-size="12" text-anchor="middle">cria branch</text>
+      <text x="440" y="190" fill="#9aa3b2" font-size="12" text-anchor="middle">segue normal</text>
+      <text x="600" y="190" fill="#9aa3b2" font-size="12" text-anchor="middle">main</text>
+      <text x="440" y="66" fill="#9aa3b2" font-size="12" text-anchor="middle">reorganiza tudo</text>
+      <text x="560" y="66" fill="#9aa3b2" font-size="12" text-anchor="middle">experimento</text>
+      <text x="40" y="150" fill="#7ee787" font-size="13">main ▸</text>
+    </svg>
+
+    <h3>Os comandos</h3>
+    <div class="step">
+      <div class="num">1</div>
+      <div>
+        <div class="cmd-line"><span class="p">$</span> git branch experimento</div>
+        <div class="trad"><b>"Crie um rascunho paralelo a partir de agora."</b></div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="num">2</div>
+      <div>
+        <div class="cmd-line"><span class="p">$</span> git checkout experimento <span class="out"># ou: git switch experimento</span></div>
+        <div class="trad"><b>"Entre no rascunho."</b> Agora o que você muda fica só aqui.</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="num">3</div>
+      <div>
+        <div class="cmd-line"><span class="p">$</span> git checkout main</div>
+        <div class="trad"><b>"Volte para a versão que vale."</b> O que você fez no branch não afeta a <code>main</code>.</div>
+      </div>
+    </div>
+
+    <div class="callout">
+      <b>Hoje branch é isolamento, não colaboração.</b> Nada de merge, conflito ou pull request —
+      a gente trabalha sozinho por enquanto. Branch volta com consequência concreta no E11:
+      <code>main</code> vira o que está publicado, branch é onde você mexe antes.
+    </div>
+  </section>
+
+  <!-- ============ TAB 5: PUSH ============ -->
+  <section class="tab-panel" id="push" role="tabpanel">
+    <h2>Push: levar as fotos para o GitHub</h2>
+
+    <div class="callout warn">
+      <b>Git ≠ GitHub.</b> <b>Git</b> é o programa que fotografa a pasta — roda na sua máquina, sem internet
+      (foi tudo o que você usou até agora). <b>GitHub</b> é um site onde você guarda uma cópia dessas fotos:
+      backup hoje, e a fonte de onde o site será publicado no E11.
+    </div>
+
+    <p>Até aqui, todas as fotos moram só no seu computador. <code>push</code> envia uma cópia para o GitHub.</p>
+
+    <div class="phase-tag">Uma vez por repositório</div>
+    <div class="step">
+      <div class="num">1</div>
+      <div>
+        <div class="cmd-line"><span class="p">$</span> git remote add origin <span class="out">https://github.com/voce/consultor-wiki.git</span></div>
+        <div class="trad"><b>"Diga onde fica a cópia online."</b></div>
+        <div class="note">Você cria o repositório vazio no site do GitHub e cola o endereço dele aqui. <code>origin</code> é só o apelido do "lá".</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="num">2</div>
+      <div>
+        <div class="cmd-line"><span class="p">$</span> git push -u origin main</div>
+        <div class="trad"><b>"Envie as fotos da main para o GitHub."</b></div>
+        <div class="note">O <code>-u</code> só na primeira vez; depois basta <code>git push</code>.</div>
+      </div>
+    </div>
+
+    <div class="phase-tag">No dia a dia</div>
+    <div class="step">
+      <div class="num">3</div>
+      <div>
+        <div class="cmd-line"><span class="p">$</span> git push</div>
+        <div class="trad"><b>"Suba as fotos novas."</b> Rode depois de commitar — pense nele como o backup da sua wiki na nuvem.</div>
+      </div>
+    </div>
+
+    <div class="term-box">
+      <div class="term-bar"><i></i><i></i><i></i><span>o ciclo completo de um dia</span></div>
+      <div class="term-body">
+        <div class="line"><span class="prompt">$</span> <span class="cmd">git status</span>          <span class="out"># o que mudou?</span></div>
+        <div class="line"><span class="prompt">$</span> <span class="cmd">git add .</span>            <span class="out"># coloca na mesa</span></div>
+        <div class="line"><span class="prompt">$</span> <span class="cmd">git commit -m "ingere reunião de 12/11"</span></div>
+        <div class="line"><span class="prompt">$</span> <span class="cmd">git push</span>             <span class="out"># manda pro GitHub</span></div>
+        <div class="line"><span class="add">✓ tudo salvo, localmente e na nuvem</span></div>
+      </div>
+    </div>
+
+    <div class="callout">
+      <b>Para o E04 original, push era assunto do E11.</b> Está aqui como adiantamento, para você já ver o
+      ciclo inteiro. Se o foco da aula for só a rede de segurança local, dá para deixar o push para depois —
+      ele não muda nada do que você fez em Git até agora.
+    </div>
+  </section>
+
+  <footer>
+    Mont Academy · Workshop Claude · Encontro 04 — material de apoio projetável.
+    Comece pelo problema (a pasta com sete versões), nunca pela ferramenta.
+  </footer>
+</div>
+
+<script>
+  document.querySelectorAll('.tab-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      document.querySelectorAll('.tab-btn').forEach(function (b) { b.classList.remove('active'); });
+      document.querySelectorAll('.tab-panel').forEach(function (p) { p.classList.remove('active'); });
+      btn.classList.add('active');
+      document.getElementById(btn.dataset.tab).classList.add('active');
+    });
+  });
+</script>
+</body>
+</html>
