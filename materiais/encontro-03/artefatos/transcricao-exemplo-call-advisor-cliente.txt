@@ -1,0 +1,182 @@
+===============================================================================
+TRANSCRIÇÃO DE EXEMPLO — material de apoio do Encontro 03 (LLM Wiki)
+===============================================================================
+Esta é uma transcrição SIMULADA e TOTALMENTE FICTÍCIA de uma call entre um
+advisor e um cliente. Serve como "plano B" para o bloco 5 (ingestão ao vivo):
+quem não trouxe uma reunião gravada do pré-work usa este arquivo.
+
+- Nomes, empresas e valores são inventados. Qualquer semelhança é coincidência.
+- Patrimônio sempre em FAIXA, nunca valor exato (régua de PII do E01).
+- Não há CPF, conta, e-mail ou telefone — de propósito.
+
+Uso sugerido em aula:
+  1. Salve uma cópia em  raw/reuniao-2026-11-12.txt
+  2. Rode o ingest (ver prompts/prompts-de-rotina.md)
+  3. Confira o que o agente criou na wiki/ e o que ficou de fora
+
+Formato: export de transcrição do Google Meet (hora · locutor · fala).
+Reunião: "Revisão de carteira — 4º tri" · Duração ~16min
+Participantes: Marina (advisor) · Cliente (perfil moderado)
+===============================================================================
+
+
+00:00:04  Marina: Oi! Tá me ouvindo bem? Acho que o áudio tava cortando no começo.
+
+00:00:07  Cliente: Agora sim, agora ficou bom. Oi Marina, tudo certo?
+
+00:00:11  Marina: Tudo ótimo. Deixa eu só… pronto, já tô gravando e com a
+          transcrição ligada, só pra eu não ter que ficar anotando tudo e
+          perder o fio da meada, tá okay pra você?
+
+00:00:19  Cliente: Tranquilo, pode gravar.
+
+00:00:21  Marina: Boa. Como é que foi a viagem? Vocês foram pra Portugal no fim,
+          né, ou mudou o plano?
+
+00:00:27  Cliente: Foi, foi Portugal mesmo. Porto e depois uns dias no Douro.
+          Voltei acabado [risos], mas valeu muito a pena. A gente tava
+          precisando desligar um pouco.
+
+00:00:36  Marina: Imagino. Que delícia. Olha, então, deixa eu puxar aqui o
+          resumo da carteira pra gente fechar o quarto trimestre. Você tem
+          mais ou menos uns quarenta minutos ou tá mais corrido hoje?
+
+00:00:45  Cliente: Hoje tô meio corrido, consigo uns vinte, no máximo.
+
+00:00:48  Marina: Perfeito, dá tempo de sobra pro que importa. Então vou direto
+          ao ponto. No geral o ano fechou dentro do que a gente tinha desenhado
+          lá em janeiro — você lembra que a gente combinou de segurar um pouco
+          mais de caixa esperando os juros?
+
+00:01:01  Cliente: Lembro, lembro. A gente ficou mais conservador de propósito.
+
+00:01:05  Marina: Isso. E isso protegeu bem na época da volatilidade de agosto.
+          A parte de renda fixa, principalmente os títulos atrelados à
+          inflação, foi o que mais segurou. Hoje a sua alocação tá mais ou
+          menos… deixa eu ver… uns sessenta por cento renda fixa, uns vinte e
+          cinco em multimercado e fundos, e o resto em bolsa e um pouquinho de
+          fundo imobiliário.
+
+00:01:24  Cliente: E isso tá bom? Porque meu cunhado vive falando que tá todo
+          mundo ganhando rios de dinheiro em bolsa e eu aqui parado.
+
+00:01:31  Marina: [risos] O cunhado… sempre tem o cunhado. Olha, é uma pergunta
+          justa. A resposta é: depende do seu objetivo, não do dele. O seu
+          plano é aposentadoria lá na frente e manter a reserva pra eventual
+          troca de imóvel, certo? Você não tá tentando bater índice todo mês.
+
+00:01:47  Cliente: É verdade. A troca de imóvel ainda tá no radar, mas não é pra
+          já. Talvez daqui uns dois, três anos.
+
+00:01:53  Marina: Então isso muda bastante a conversa. Pra esse horizonte eu não
+          colocaria mais risco só porque a bolsa tá animada. O que a gente pode
+          fazer, e eu ia te propor isso hoje, é um ajuste pequeno — não uma
+          virada.
+
+00:02:05  Cliente: Que tipo de ajuste?
+
+00:02:07  Marina: Tem um fundo imobiliário de logística que você tem desde…
+          acho que 2021. O de galpões, aquele. Ele pagou bem de dividendo todo
+          esse tempo, mas a tese mudou um pouco, o setor ficou mais concorrido,
+          e ele tá com uma concentração grande num inquilino só. Isso me
+          incomoda um pouco.
+
+00:02:24  Cliente: Ah esse eu gosto, ele cai na conta todo mês certinho.
+
+00:02:27  Marina: Eu sei, e é exatamente por isso que eu não quero sair
+          correndo. A renda é boa. Mas concentração em um inquilino é um risco
+          que, se der errado, dói de uma vez. Eu não tô dizendo pra vender
+          tudo. Eu tô sugerindo reduzir mais ou menos pela metade e levar esse
+          pedaço pra um fundo de recebíveis que é mais pulverizado.
+
+00:02:43  Cliente: Hum. E eu perco renda com isso?
+
+00:02:46  Marina: Um pouquinho no curto prazo, sim, é honesto dizer. Mas você
+          troca um pedaço de renda por menos risco de levar um susto. Pro seu
+          perfil e pro seu horizonte, eu acho que compensa. Mas é a sua
+          decisão, não é algo que eu faço sem você falar "pode".
+
+00:02:59  Cliente: Deixa eu pensar nisso com calma. Não precisa ser hoje, né?
+
+00:03:03  Marina: Não, não, de jeito nenhum. Inclusive eu prefiro que você
+          pense. O que eu posso fazer é te mandar um resumo de uma página,
+          bem direto, com os números do fundo atual e do que eu tô propondo,
+          aí você olha com calma e me fala.
+
+00:03:15  Cliente: Isso ajudaria bastante. Manda sim.
+
+00:03:18  Marina: Fechado, anotado. Te mando até sexta.
+
+00:03:21  Cliente: Ah, e uma coisa que eu queria te perguntar — chegou uma carta
+          do banco falando de uma mudança de tributação em fundo, não entendi
+          nada. Você viu isso?
+
+00:03:30  Marina: Vi, vi. Isso tá todo mundo recebendo. É aquela mudança no come-
+          cotas de alguns fundos. No seu caso específico, o impacto é pequeno
+          porque a maior parte da sua renda fixa é em título que não tem esse
+          mecanismo. Mas tem um dos multimercados que entra na regra nova.
+
+00:03:45  Cliente: E isso é ruim?
+
+00:03:47  Marina: Não é bom nem ruim por si só, é só uma antecipação de imposto
+          que você pagaria lá na frente de qualquer jeito. Muda o fluxo, não
+          muda muito o total. Mas eu quero conferir uma conta antes de te
+          responder certinho, porque imposto eu não chuto. Deixa eu olhar a
+          planilha com calma e eu te trago o número exato — não vou te dar um
+          número agora de cabeça e depois me corrigir.
+
+00:04:05  Cliente: Boa, prefiro assim mesmo.
+
+00:04:08  Marina: Então fica como pendência minha também: conferir o impacto do
+          come-cotas no seu multimercado e te mandar junto com o resumo do
+          fundo imobiliário.
+
+00:04:16  Cliente: Perfeito. Ah, deixa eu aproveitar — minha filha começou a
+          trabalhar agora, primeiro emprego, e ela tá querendo começar a
+          investir alguma coisinha. Você atende valor pequeno também ou é só
+          pra… sei lá, gente com muito dinheiro?
+
+00:04:29  Marina: Atendo com todo prazer, e aliás acho ótimo começar cedo. Pra
+          ela o mais importante no começo nem é o quanto, é o hábito. A gente
+          marca uma conversa só pra ela, bem sem compromisso, eu explico o
+          básico e ela decide se faz sentido. Pode ser?
+
+00:04:43  Cliente: Vai amar isso. Depois te passo o contato dela.
+
+00:04:46  Marina: Combinado. Boa, então deixa eu recapitular pra gente não se
+          perder: um, eu te mando até sexta um resumo do fundo de logística com
+          a proposta de reduzir pela metade e migrar pra recebíveis. Dois, no
+          mesmo documento vai o impacto do come-cotas no multimercado, com o
+          número conferido. Três, a gente agenda uma conversa inicial pra sua
+          filha. É isso?
+
+00:05:05  Cliente: É isso. E eu te respondo sobre o fundo depois de ler.
+
+00:05:09  Marina: Exato. Sem pressa nenhuma do seu lado. A única coisa com data
+          é a minha, que é o resumo até sexta.
+
+00:05:15  Cliente: Show. Ah, e feliz que a viagem não atrapalhou nada aqui.
+
+00:05:19  Marina: Que nada, tá tudo rodando. Pode viajar tranquilo sempre
+          [risos]. Qualquer coisa que pintar fora de hora, você me chama que eu
+          respondo.
+
+00:05:26  Cliente: Valeu, Marina. Vou ter que correr pra próxima agora.
+
+00:05:29  Marina: Pode ir! Semana que vem a gente se fala. Abraço e manda um oi
+          pra família.
+
+00:05:33  Cliente: Abraço, até mais!
+
+00:05:35  Marina: Até!
+
+===============================================================================
+FIM DA TRANSCRIÇÃO
+===============================================================================
+Dica de revisão (bloco 5): depois do ingest, pergunte ao colega as duas
+perguntas do material —
+  (a) O que ESTÁ na transcrição e ficou de fora da wiki?
+  (b) O que apareceu na wiki SEM estar na transcrição? (isso é invenção)
+Repare que o número do come-cotas NÃO está na transcrição de propósito — a
+advisor adiou para "conferir na planilha". Se a wiki trouxer um número, é
+invenção.
