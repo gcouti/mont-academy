@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>E03 — A estrutura do LLM Wiki</title>
+<title>E03 — LLM Wiki</title>
 <style>
   :root {
     --bg: #0f1115;
@@ -15,6 +15,13 @@
     --accent-2: #7ee787;
     --warn: #f0b429;
     --border: #2a2f3a;
+    --cal: #6ea8fe;
+    --wa: #25d366;
+    --chat: #c792ea;
+    --raw: #f0b429;
+    --wiki: #7ee787;
+    --sum: #6ea8fe;
+    --alert: #ff7a7a;
   }
   * { box-sizing: border-box; }
   body {
@@ -23,27 +30,37 @@
     background: var(--bg);
     color: var(--ink);
     line-height: 1.55;
-    padding: 48px 24px 80px;
+    padding: 40px 24px 80px;
   }
-  .wrap { max-width: 980px; margin: 0 auto; }
-  header { margin-bottom: 40px; }
+  .wrap { max-width: 1040px; margin: 0 auto; }
+  header { margin-bottom: 24px; }
   .eyebrow { color: var(--accent); font-weight: 700; letter-spacing: .08em; text-transform: uppercase; font-size: 13px; }
-  h1 { font-size: 34px; margin: 6px 0 8px; }
+  h1 { font-size: 32px; margin: 6px 0 8px; }
   .sub { color: var(--muted); font-size: 17px; }
-  h2 { font-size: 22px; margin: 44px 0 16px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+  h2 { font-size: 22px; margin: 40px 0 16px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+
+  /* Tabs */
+  .tabs { display: flex; gap: 8px; margin: 20px 0 8px; border-bottom: 1px solid var(--border); }
+  .tab-btn {
+    background: transparent; border: none; color: var(--muted);
+    font: inherit; font-weight: 600; font-size: 15px; padding: 12px 18px;
+    cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px;
+  }
+  .tab-btn:hover { color: var(--ink); }
+  .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .tab-panel { display: none; animation: fadeIn .25s ease; }
+  .tab-panel.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
   .quote {
-    background: var(--panel);
-    border-left: 4px solid var(--accent);
-    padding: 18px 22px;
-    border-radius: 8px;
-    font-size: 19px;
-    margin: 24px 0;
+    background: var(--panel); border-left: 4px solid var(--accent);
+    padding: 18px 22px; border-radius: 8px; font-size: 19px; margin: 24px 0;
   }
   .quote span { color: var(--muted); font-size: 14px; display: block; margin-top: 8px; }
   table { width: 100%; border-collapse: collapse; margin: 16px 0; background: var(--panel); border-radius: 8px; overflow: hidden; }
   th, td { padding: 14px 16px; text-align: left; border-bottom: 1px solid var(--border); vertical-align: top; }
   th { background: var(--panel-2); font-size: 14px; letter-spacing: .03em; color: var(--muted); text-transform: uppercase; }
-  td code { background: var(--panel-2); padding: 2px 6px; border-radius: 4px; color: var(--accent-2); font-size: 14px; }
+  td code, p code { background: var(--panel-2); padding: 2px 6px; border-radius: 4px; color: var(--accent-2); font-size: 14px; }
   .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin: 16px 0; }
   .card { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 20px; }
   .card h3 { margin: 0 0 6px; font-size: 16px; }
@@ -60,90 +77,335 @@
   .ops { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 16px 0; }
   .op { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
   .op b { color: var(--accent); font-size: 16px; }
-  .loop { background: var(--panel); border: 1px dashed var(--accent); border-radius: 10px; padding: 18px 20px; margin: 16px 0; color: var(--ink); }
+  .loop { background: var(--panel); border: 1px dashed var(--accent); border-radius: 10px; padding: 18px 20px; margin: 16px 0; }
   .loop b { color: var(--accent); }
   code { font-family: "SF Mono", Menlo, Consolas, monospace; }
   footer { margin-top: 50px; color: var(--muted); font-size: 13px; border-top: 1px solid var(--border); padding-top: 16px; }
+
+  /* ======================= FLUXO DINÂMICO ======================= */
+  .flow-stage {
+    display: grid;
+    grid-template-columns: minmax(0,0.95fr) minmax(0,0.7fr) minmax(0,1.55fr) minmax(0,0.7fr) minmax(0,1.05fr);
+    align-items: stretch;
+    gap: 0;
+    overflow: hidden;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 26px 18px;
+    margin: 20px 0;
+    min-height: 420px;
+  }
+  .zone { display: flex; flex-direction: column; justify-content: center; gap: 16px; }
+  .zone-title { font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); text-align: center; margin-bottom: 2px; }
+  .node {
+    background: var(--panel-2); border: 1px solid var(--border); border-radius: 10px;
+    padding: 12px 14px; display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 600;
+  }
+  .node .ico { width: 30px; height: 30px; border-radius: 8px; display: grid; place-items: center; font-size: 16px; flex: 0 0 auto; }
+  .node small { display: block; font-weight: 400; color: var(--muted); font-size: 12px; }
+  .node.cal .ico { background: rgba(110,168,254,.16); }
+  .node.wa .ico { background: rgba(37,211,102,.16); }
+  .node.chat .ico { background: rgba(199,146,234,.16); }
+  .node.sum { border-left: 3px solid var(--sum); }
+  .node.sum .ico { background: rgba(110,168,254,.16); }
+  .node.alert { border-left: 3px solid var(--alert); }
+  .node.alert .ico { background: rgba(255,122,122,.16); }
+
+  /* Datalake */
+  .lake {
+    border: 1px solid var(--border); border-radius: 14px; padding: 16px 14px;
+    background: linear-gradient(180deg, rgba(110,168,254,.05), rgba(126,231,135,.04));
+    display: grid; grid-template-rows: auto 1fr; gap: 10px;
+  }
+  .lake-head { text-align: center; }
+  .lake-head .tag { font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--accent); font-weight: 700; }
+  .lake-head .name { font-size: 15px; font-weight: 700; }
+  .lake-body { display: grid; grid-template-columns: minmax(0,1fr) 16px minmax(0,1fr); align-items: center; gap: 4px; }
+  .bucket { min-width: 0; border: 1px solid var(--border); border-radius: 10px; padding: 12px 10px; background: var(--panel-2); }
+  .bucket .lbl { font-family: "SF Mono", monospace; font-weight: 700; font-size: 14px; margin-bottom: 8px; }
+  .bucket.raw .lbl { color: var(--raw); }
+  .bucket.wiki .lbl { color: var(--wiki); }
+  .chip { display: block; background: var(--panel); border: 1px solid var(--border); border-radius: 6px;
+    padding: 5px 8px; font-family: "SF Mono", monospace; font-size: 11px; color: var(--muted); margin-bottom: 6px;
+    overflow-wrap: anywhere; }
+  .chip:last-child { margin-bottom: 0; }
+  .bucket.wiki .chip { color: var(--ink); }
+
+  /* Lanes de partículas */
+  .lane { position: relative; overflow: hidden; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; }
+  .lane.h {
+    height: 18px; align-self: center; width: 100%;
+    -webkit-mask-image: linear-gradient(to right, transparent, #000 14%, #000 86%, transparent);
+            mask-image: linear-gradient(to right, transparent, #000 14%, #000 86%, transparent);
+  }
+  .lane.h::before {
+    content: ''; position: absolute; left: 0; right: 0; top: 50%; height: 2px; transform: translateY(-50%);
+    background: linear-gradient(90deg, transparent, var(--border), transparent);
+  }
+  .stream { display: flex; flex-direction: column; justify-content: space-around; padding: 10px 0; }
+  .stream.two { justify-content: space-evenly; }
+  .track { display: flex; align-items: center; height: 100%; width: max-content; will-change: transform; }
+  .track.v { flex-direction: column; }
+  .p { width: 7px; height: 7px; border-radius: 50%; flex: 0 0 auto; background: var(--c);
+       box-shadow: 0 0 10px 1px var(--c), 0 0 3px var(--c); margin-right: 40px; }
+  .track.v .p { margin-right: 0; margin-bottom: 26px; }
+  .track.flowX { animation: flowX var(--dur, 7s) linear infinite; }
+  .track.flowY { animation: flowY var(--dur, 7s) linear infinite; }
+  @keyframes flowX { from { transform: translateX(-50%); } to { transform: translateX(0); } }
+  @keyframes flowY { from { transform: translateY(-50%); } to { transform: translateY(0); } }
+
+  /* lane vertical interna (raw -> wiki) */
+  .lane.vmid { width: 16px; height: 76px; justify-self: center; align-self: center;
+    -webkit-mask-image: linear-gradient(to bottom, transparent, #000 22%, #000 78%, transparent);
+            mask-image: linear-gradient(to bottom, transparent, #000 22%, #000 78%, transparent); }
+  .lane.vmid::before {
+    content: ''; position: absolute; top: 0; bottom: 0; left: 50%; width: 2px; transform: translateX(-50%);
+    background: linear-gradient(180deg, transparent, var(--border), transparent); }
+  .lane.vmid .track.v { align-items: center; justify-content: center; width: 100%; }
+
+  .flow-legend { display: flex; flex-wrap: wrap; gap: 16px; justify-content: center; margin-top: 10px; color: var(--muted); font-size: 13px; }
+  .flow-legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .flow-legend i { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .track { animation: none !important; }
+    .tab-panel { animation: none; }
+  }
+  @media (max-width: 820px) {
+    .flow-stage { grid-template-columns: 1fr; gap: 10px; min-height: 0; }
+    .lane.h { height: 46px; width: 2px; justify-self: center; background: linear-gradient(180deg, transparent, var(--border), transparent); }
+  }
 </style>
 </head>
 <body>
 <div class="wrap">
   <header>
     <div class="eyebrow">Encontro 03 · LLM Wiki e Agente de Código</div>
-    <h1>A estrutura: <code>raw/</code>, <code>wiki/</code>, <code>CLAUDE.md</code></h1>
+    <h1>LLM Wiki — da informação bruta ao atendimento</h1>
     <p class="sub">Base de conhecimento própria, onde o mesmo arquivo que você lê para trabalhar é o que o agente lê para executar.</p>
   </header>
 
-  <div class="quote">
-    "Obsidian é a IDE; o LLM é o programador; a wiki é a base de código."
-    <span>— Andrej Karpathy, gist <code>llm-wiki</code>, 04/04/2026</span>
-  </div>
+  <nav class="tabs" role="tablist">
+    <button class="tab-btn active" data-tab="estrutura" role="tab">A estrutura</button>
+    <button class="tab-btn" data-tab="fluxo" role="tab">O que dá pra fazer</button>
+  </nav>
 
-  <h2>A mudança de ideia: RAG × LLM Wiki</h2>
-  <div class="cols">
-    <div class="card rag">
-      <h3>RAG — o padrão anterior</h3>
-      <ul>
-        <li>O trabalho acontece <b>a cada pergunta</b></li>
-        <li>Entre as perguntas <b>não existe nada</b></li>
-        <li>Cada resposta é remontada do zero</li>
-      </ul>
+  <!-- ===================== ABA 1: ESTRUTURA ===================== -->
+  <section class="tab-panel active" id="estrutura" role="tabpanel">
+    <div class="quote">
+      "Obsidian é a IDE; o LLM é o programador; a wiki é a base de código."
+      <span>— Andrej Karpathy, gist <code>llm-wiki</code>, 04/04/2026</span>
     </div>
-    <div class="card wiki">
-      <h3>LLM Wiki</h3>
-      <ul>
-        <li>O trabalho acontece <b>uma vez, na ingestão</b></li>
-        <li>Entre as perguntas existe <b>uma wiki que cresce</b></li>
-        <li>Artefato permanente que se acumula</li>
-      </ul>
-    </div>
-  </div>
-  <p class="sub">RAG é cozinhar do zero toda vez que dá fome. O LLM Wiki é ter uma despensa organizada.</p>
 
-  <h2>Três camadas, uma pasta</h2>
-  <div class="layers">
-    <div class="layer raw">
-      <div class="name"><code>raw/</code></div>
-      <div>Fontes originais: lâmina PDF, ata, transcrição, planilha. <b>Nunca alterada.</b></div>
-      <div class="who">edita: você</div>
+    <h2>A mudança de ideia: RAG × LLM Wiki</h2>
+    <div class="cols">
+      <div class="card rag">
+        <h3>RAG — o padrão anterior</h3>
+        <ul>
+          <li>O trabalho acontece <b>a cada pergunta</b></li>
+          <li>Entre as perguntas <b>não existe nada</b></li>
+          <li>Cada resposta é remontada do zero</li>
+        </ul>
+      </div>
+      <div class="card wiki">
+        <h3>LLM Wiki</h3>
+        <ul>
+          <li>O trabalho acontece <b>uma vez, na ingestão</b></li>
+          <li>Entre as perguntas existe <b>uma wiki que cresce</b></li>
+          <li>Artefato permanente que se acumula</li>
+        </ul>
+      </div>
     </div>
-    <div class="layer wiki">
-      <div class="name"><code>wiki/</code></div>
-      <div>Páginas markdown interligadas — sua base de conhecimento. Toda afirmação cita a fonte em <code>raw/</code>.</div>
-      <div class="who">edita: o modelo,<br>sob sua revisão</div>
+    <p class="sub">RAG é cozinhar do zero toda vez que dá fome. O LLM Wiki é ter uma despensa organizada.</p>
+
+    <h2>Três camadas, uma pasta</h2>
+    <div class="layers">
+      <div class="layer raw">
+        <div class="name"><code>raw/</code></div>
+        <div>Fontes originais: lâmina PDF, ata, transcrição, planilha. <b>Nunca alterada.</b></div>
+        <div class="who">edita: você</div>
+      </div>
+      <div class="layer wiki">
+        <div class="name"><code>wiki/</code></div>
+        <div>Páginas markdown interligadas — sua base de conhecimento. Toda afirmação cita a fonte em <code>raw/</code>.</div>
+        <div class="who">edita: o modelo,<br>sob sua revisão</div>
+      </div>
+      <div class="layer rule">
+        <div class="name"><code>CLAUDE.md</code></div>
+        <div>Instrução persistente: como o modelo lê <code>raw/</code> e escreve <code>wiki/</code>. Vale em toda conversa.</div>
+        <div class="who">edita: você</div>
+      </div>
     </div>
-    <div class="layer rule">
-      <div class="name"><code>CLAUDE.md</code></div>
-      <div>Instrução persistente: como o modelo lê <code>raw/</code> e escreve <code>wiki/</code>. Vale em toda conversa.</div>
-      <div class="who">edita: você</div>
+
+    <h2>Três operações</h2>
+    <div class="ops">
+      <div class="op"><b>ingest</b><p>Uma fonte de <code>raw/</code> vira páginas em <code>wiki/</code>.</p></div>
+      <div class="op"><b>query</b><p>Perguntar à wiki — resposta com a sua base, não com o que o modelo acha.</p></div>
+      <div class="op"><b>lint</b><p>Auditar consistência: contradições, páginas órfãs, afirmações sem citação.</p></div>
     </div>
-  </div>
 
-  <h2>Três operações</h2>
-  <div class="ops">
-    <div class="op"><b>ingest</b><p>Uma fonte de <code>raw/</code> vira páginas em <code>wiki/</code>.</p></div>
-    <div class="op"><b>query</b><p>Perguntar à wiki — resposta com a sua base, não com o que o modelo acha.</p></div>
-    <div class="op"><b>lint</b><p>Auditar consistência: contradições, páginas órfãs, afirmações sem citação.</p></div>
-  </div>
+    <div class="loop">
+      <b>A seta que fecha o ciclo:</b> toda correção que você faz na revisão volta para o
+      <code>CLAUDE.md</code>. É o que faz o sistema melhorar sozinho, em vez de você repetir
+      a mesma correção todo mês.
+    </div>
 
-  <div class="loop">
-    <b>A seta que fecha o ciclo:</b> toda correção que você faz na revisão volta para o
-    <code>CLAUDE.md</code>. É o que faz o sistema melhorar sozinho, em vez de você repetir
-    a mesma correção todo mês.
-  </div>
+    <h2>O que o curso adiciona ao padrão original</h2>
+    <p>
+      A <b>regra de citação obrigatória</b>. No gist as citações são possibilidade;
+      aqui são condição: toda afirmação em <code>wiki/</code> aponta para o arquivo de
+      <code>raw/</code> de onde veio. O motivo é regulatório — o art. 23 da Resolução CVM 19
+      exige guarda por 5 anos da documentação que fundamentou recomendações.
+    </p>
+  </section>
 
-  <h2>O que o curso adiciona ao padrão original</h2>
-  <p>
-    A <b>regra de citação obrigatória</b>. No gist as citações são possibilidade;
-    aqui são condição: toda afirmação em <code>wiki/</code> aponta para o arquivo de
-    <code>raw/</code> de onde veio. O motivo é regulatório — o art. 23 da Resolução CVM 19
-    exige guarda por 5 anos da documentação que fundamentou recomendações.
-  </p>
+  <!-- ===================== ABA 2: FLUXO ===================== -->
+  <section class="tab-panel" id="fluxo" role="tabpanel">
+    <h2>Do dado espalhado ao atendimento melhor</h2>
+    <p class="sub">A informação que hoje se perde — reunião, mensagem, agenda — flui para um
+      datalake pessoal (o LLM Wiki): entra em <code>raw/</code>, vira páginas na <code>wiki/</code>,
+      e volta para você como <b>resumo de cliente</b> e <b>alertas do que falar</b>.</p>
+
+    <div class="flow-stage">
+      <!-- Zona 1: Fontes -->
+      <div class="zone">
+        <div class="zone-title">Fontes</div>
+        <div class="node cal"><span class="ico">📅</span><div>Google Calendar<small>reuniões, compromissos</small></div></div>
+        <div class="node wa"><span class="ico">💬</span><div>WhatsApp<small>conversas com cliente</small></div></div>
+        <div class="node chat"><span class="ico">🗂️</span><div>Chats &amp; E-mail<small>threads, follow-ups</small></div></div>
+      </div>
+
+      <!-- Stream 1: fontes -> lake -->
+      <div class="stream" data-stream="in"></div>
+
+      <!-- Zona 2: Datalake -->
+      <div class="lake">
+        <div class="lake-head">
+          <div class="tag">Datalake</div>
+          <div class="name">LLM Wiki</div>
+        </div>
+        <div class="lake-body">
+          <div class="bucket raw">
+            <div class="lbl">raw/</div>
+            <span class="chip">reuniao-2026-11-12.txt</span>
+            <span class="chip">lamina-fundo.pdf</span>
+            <span class="chip">conversa-cliente.txt</span>
+          </div>
+          <div class="lane vmid"><div class="track v flowY" data-dots="5" data-color="var(--raw)" data-dur="4.5s"></div></div>
+          <div class="bucket wiki">
+            <div class="lbl">wiki/</div>
+            <span class="chip">cliente-acme.md</span>
+            <span class="chip">fundo-xp-logistica.md</span>
+            <span class="chip">decisoes-pendencias.md</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stream 2: lake -> saídas -->
+      <div class="stream two" data-stream="out"></div>
+
+      <!-- Zona 3: Saídas -->
+      <div class="zone">
+        <div class="zone-title">O que você faz com isso</div>
+        <div class="node sum"><span class="ico">🧾</span><div>Resumo sobre os clientes<small>histórico num parágrafo</small></div></div>
+        <div class="node alert"><span class="ico">🔔</span><div>Alertas para falar<small>quem procurar e por quê</small></div></div>
+      </div>
+    </div>
+
+    <div class="flow-legend">
+      <span><i style="background:var(--cal)"></i>Calendar</span>
+      <span><i style="background:var(--wa)"></i>WhatsApp</span>
+      <span><i style="background:var(--chat)"></i>Chats/E-mail</span>
+      <span><i style="background:var(--raw)"></i>raw → wiki</span>
+      <span><i style="background:var(--sum)"></i>Resumos</span>
+      <span><i style="background:var(--alert)"></i>Alertas</span>
+    </div>
+
+    <p class="sub" style="margin-top:22px">
+      Hoje a ingestão é manual (bloco 5). No <code>E08</code> esse mesmo fluxo roda sozinho —
+      e você continua no controle, revisando a saída antes de ela virar ação.
+    </p>
+  </section>
 
   <footer>
     Mont Academy · Workshop Claude · Encontro 03 — material de apoio projetável.
     Fonte do padrão: gist <code>llm-wiki</code> (Andrej Karpathy, abr/2026).
   </footer>
 </div>
+
+<script>
+  // --- Troca de abas ---
+  document.querySelectorAll('.tab-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      document.querySelectorAll('.tab-btn').forEach(function (b) { b.classList.remove('active'); });
+      document.querySelectorAll('.tab-panel').forEach(function (p) { p.classList.remove('active'); });
+      btn.classList.add('active');
+      document.getElementById(btn.dataset.tab).classList.add('active');
+    });
+  });
+
+  // --- Construtor de lanes de partículas ---
+  // Preenche uma lane com N "células" de ponto e CLONA o conjunto para obter
+  // 2N células idênticas. A animação desloca -50% (= N células), então a segunda
+  // metade reproduz exatamente a primeira no instante do wrap: loop sem emenda.
+  function buildLane(host, opts) {
+    var lane = document.createElement('div');
+    lane.className = 'lane h';
+    var track = document.createElement('div');
+    track.className = 'track flowX';
+    track.style.setProperty('--dur', opts.dur);
+
+    var half = document.createElement('div');
+    half.style.display = 'flex';
+    half.style.alignItems = 'center';
+    for (var i = 0; i < opts.count; i++) {
+      var p = document.createElement('span');
+      p.className = 'p';
+      p.style.setProperty('--c', opts.color);
+      half.appendChild(p);
+    }
+    // metade 1 + metade 2 (clone idêntico) = 2N células
+    track.appendChild(half);
+    track.appendChild(half.cloneNode(true));
+
+    lane.appendChild(track);
+    host.appendChild(lane);
+  }
+
+  // Stream de ENTRADA: uma lane por fonte, cores e tempos distintos (orgânico)
+  var inHost = document.querySelector('[data-stream="in"]');
+  [
+    { count: 6, color: 'var(--cal)',  dur: '6.2s' },
+    { count: 6, color: 'var(--wa)',   dur: '7.1s' },
+    { count: 6, color: 'var(--chat)', dur: '5.6s' }
+  ].forEach(function (o) { buildLane(inHost, o); });
+
+  // Stream de SAÍDA: resumos e alertas
+  var outHost = document.querySelector('[data-stream="out"]');
+  [
+    { count: 6, color: 'var(--sum)',   dur: '6.6s' },
+    { count: 6, color: 'var(--alert)', dur: '7.4s' }
+  ].forEach(function (o) { buildLane(outHost, o); });
+
+  // Lane VERTICAL interna do lake (raw -> wiki), mesma técnica no eixo Y
+  document.querySelectorAll('.track.v[data-dots]').forEach(function (track) {
+    track.style.setProperty('--dur', track.dataset.dur || '5s');
+    var color = track.dataset.color || 'var(--raw)';
+    var n = parseInt(track.dataset.dots, 10) || 5;
+    var half = document.createElement('div');
+    half.style.display = 'flex';
+    half.style.flexDirection = 'column';
+    half.style.alignItems = 'center';
+    for (var i = 0; i < n; i++) {
+      var p = document.createElement('span');
+      p.className = 'p';
+      p.style.setProperty('--c', color);
+      half.appendChild(p);
+    }
+    track.appendChild(half);
+    track.appendChild(half.cloneNode(true));
+  });
+</script>
 </body>
 </html>
