@@ -1,0 +1,36 @@
+===============================================================================
+RELATÓRIO DE INCONSISTÊNCIA — exemplo (Encontro 06)
+===============================================================================
+Este é o relatório que o importador apresenta ANTES de gravar qualquer linha.
+É barreira, não log: você lê e libera. Log você leria depois do estrago.
+
+Arquivo:   raw/corretora-gama-2026-11-01.csv
+Executado: 2026-11-01 06:00  ·  modo: simulação (nada gravado ainda)
+Data base: 1-Nov-2026  → normalizada para 2026-11-01 (veio do cabeçalho)
+-------------------------------------------------------------------------------
+
+LINHAS LIDAS ........... 3
+PASSARAM NA VALIDAÇÃO ... 2
+CAÍRAM ................. 1
+
+-------------------------------------------------------------------------------
+LINHAS QUE PASSARAM
+-------------------------------------------------------------------------------
+  linha 3  ITAUSA4  → ITSA4   acao   qtd 1000   valor 10520.00   (sinônimo aplicado)
+  linha 5  HGLG11   → HGLG11  fii    qtd 80     valor 10312.00
+
+-------------------------------------------------------------------------------
+LINHAS QUE CAÍRAM
+-------------------------------------------------------------------------------
+  linha 4  BOVA11  → ETF
+           motivo: ativo "BOVA11" não está em ativo-sinonimos.csv com a classe
+           "etf" mapeada para uma classe canônica aceita pelo banco.
+           ação sugerida: adicionar a regra em ativo-sinonimos.csv e rodar de novo.
+
+-------------------------------------------------------------------------------
+RESUMO
+-------------------------------------------------------------------------------
+Nenhuma linha foi gravada. 1 inconsistência precisa de decisão sua.
+Depois de corrigir ativo-sinonimos.csv, rode novamente — o upsert por
+(cliente_id, ativo, data) garante que as 2 linhas boas não serão duplicadas.
+===============================================================================
