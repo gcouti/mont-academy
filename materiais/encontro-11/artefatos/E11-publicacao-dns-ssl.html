@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>E11 — Publicação, DNS e SSL</title>
+<style>
+  :root { --bg:#0f1115; --panel:#181b22; --panel-2:#1f232c; --term:#0b0d12; --ink:#e8eaed; --muted:#9aa3b2;
+    --accent:#6ea8fe; --accent-2:#7ee787; --warn:#f0b429; --danger:#ff7a7a; --border:#2a2f3a; }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg); color:var(--ink); line-height:1.55; padding:40px 24px 80px; }
+  .wrap { max-width:1040px; margin:0 auto; }
+  .eyebrow { color:var(--accent); font-weight:700; letter-spacing:.08em; text-transform:uppercase; font-size:13px; }
+  h1 { font-size:32px; margin:6px 0 8px; } .sub { color:var(--muted); font-size:17px; }
+  h2 { font-size:22px; margin:34px 0 14px; padding-bottom:8px; border-bottom:1px solid var(--border); }
+  h3 { font-size:16px; margin:20px 0 8px; }
+  code { font-family:"SF Mono",Menlo,Consolas,monospace; }
+  p code,li code,td code { background:var(--panel-2); padding:2px 6px; border-radius:4px; color:var(--accent-2); font-size:13.5px; }
+  .tabs { display:flex; gap:6px; margin:22px 0 10px; border-bottom:1px solid var(--border); flex-wrap:wrap; }
+  .tab-btn { background:transparent; border:none; color:var(--muted); font:inherit; font-weight:600; font-size:15px;
+    padding:12px 16px; cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-1px; }
+  .tab-btn:hover { color:var(--ink);} .tab-btn.active { color:var(--accent); border-bottom-color:var(--accent); }
+  .tab-panel { display:none; animation:fadeIn .25s ease; } .tab-panel.active { display:block; }
+  @keyframes fadeIn { from{opacity:0;} to{opacity:1;} }
+  .card { background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:18px 20px; margin:12px 0; }
+  .callout { background:var(--panel); border-left:4px solid var(--accent); border-radius:8px; padding:16px 20px; margin:16px 0; }
+  .callout.warn{border-left-color:var(--warn);} .callout.danger{border-left-color:var(--danger);}
+  .callout b{color:var(--accent);} .callout.warn b{color:var(--warn);} .callout.danger b{color:var(--danger);}
+  table { width:100%; border-collapse:collapse; margin:14px 0; background:var(--panel); border-radius:8px; overflow:hidden; }
+  th,td { padding:11px 13px; text-align:left; border-bottom:1px solid var(--border); vertical-align:top; font-size:14px; }
+  th { background:var(--panel-2); font-size:12.5px; letter-spacing:.03em; color:var(--muted); text-transform:uppercase; }
+  td code { color:var(--accent-2); }
+  .lp { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin:14px 0; }
+  .lp .c { border-radius:10px; padding:16px; border:1px solid var(--border); }
+  .lp .local { border-left:4px solid var(--muted); } .lp .prod { border-left:4px solid var(--accent-2); }
+  .lp h3 { margin:0 0 8px; } .lp .prod h3 { color:var(--accent-2); }
+  .lp ul { margin:0; padding-left:18px; font-size:13.5px; } .lp li { margin:5px 0; }
+  .pipe { display:flex; align-items:center; gap:0; flex-wrap:wrap; margin:16px 0; }
+  .st { flex:1 1 0; min-width:130px; background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:14px; text-align:center; }
+  .st .t { font-weight:700; } .st .d { color:var(--muted); font-size:12.5px; margin-top:4px; }
+  .pipe .ar { color:var(--muted); font-size:20px; padding:0 4px; }
+  @media(max-width:760px){ .pipe{flex-direction:column;} .pipe .ar{transform:rotate(90deg);} .lp{grid-template-columns:1fr;} }
+  footer { margin-top:48px; color:var(--muted); font-size:13px; border-top:1px solid var(--border); padding-top:16px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="eyebrow">Encontro 11 · Publicação, DNS e Apresentação Final</div>
+  <h1>Do <code>localhost</code> ao seu endereço, com cadeado</h1>
+  <p class="sub">A primeira vez que a aplicação sai da sua máquina. Código no GitHub, plataforma rodando 24h, e um domínio que você controla apontando para ele.</p>
+
+  <nav class="tabs" role="tablist">
+    <button class="tab-btn active" data-tab="noar">O que falta</button>
+    <button class="tab-btn" data-tab="localprod">Local × produção</button>
+    <button class="tab-btn" data-tab="publicar">Publicar</button>
+    <button class="tab-btn" data-tab="env">Variáveis de ambiente</button>
+    <button class="tab-btn" data-tab="dns">Domínio, DNS e SSL</button>
+  </nav>
+
+  <section class="tab-panel active" id="noar" role="tabpanel">
+    <h2>O que falta para "estar no ar"</h2>
+    <p>Hoje o sistema roda quando você digita <code>npm run dev</code> e só vive enquanto o terminal está aberto. Fechou o notebook, morreu. Estar no ar são três coisas que ainda não existem:</p>
+    <div class="card">1 · O código mora num lugar que <b>não é a sua máquina</b> (GitHub).</div>
+    <div class="card">2 · Alguém executa esse código <b>24h, sem você</b> (a plataforma).</div>
+    <div class="card">3 · Um <b>endereço que você controla</b> aponta para ele (seu domínio, via DNS).</div>
+    <p class="sub">O encontro entrega as três, nessa ordem.</p>
+    <div class="callout danger">
+      <b>Prazo inegociável:</b> registre o domínio <b>pelo menos 5 dias antes</b>. A propagação de DNS leva de minutos a horas
+      e não dá para acelerar na aula. Domínio comprado no dia <b>não fica pronto no dia</b>. (Plano B: apresentar no endereço temporário da plataforma.)
+    </div>
+  </section>
+
+  <section class="tab-panel" id="localprod" role="tabpanel">
+    <h2>Local e produção não são a mesma coisa</h2>
+    <p>É onde quase todo projeto de iniciante quebra, e o sintoma é sempre <i>"funciona na minha máquina"</i>.</p>
+    <div class="lp">
+      <div class="c local"><h3>Local — sua máquina</h3><ul>
+        <li>Código na pasta</li><li><code>npm run dev</code></li><li>Segredos no arquivo <code>.env</code></li>
+        <li>Banco: Supabase de teste</li><li>Endereço: <code>localhost:3000</code></li></ul></div>
+      <div class="c prod"><h3>Produção — o mundo</h3><ul>
+        <li>Código no GitHub</li><li>Plataforma roda 24h</li><li>Segredos nas configurações da plataforma</li>
+        <li>Banco: Supabase de produção</li><li>Endereço: <code>https://seudominio.com.br</code></li></ul></div>
+    </div>
+    <table>
+      <tr><th></th><th>O que dá errado</th></tr>
+      <tr><td>Código</td><td>Esquecer o <code>push</code>: o ar fica com a versão velha</td></tr>
+      <tr><td><b>Segredos</b></td><td><b>A causa nº 1 de falha:</b> o <code>.env</code> não sobe (e não deve), então a produção não tem as chaves</td></tr>
+      <tr><td>Banco</td><td>Publicar apontando para o banco de teste, e achar que perdeu os dados</td></tr>
+    </table>
+    <div class="callout warn">
+      <b>Decisão do banco:</b> um só projeto Supabase para local e produção (recomendado agora — simples). A consequência a dizer em voz alta:
+      <b>teste destrutivo não se faz no banco de produção</b>. Quando precisar testar algo que apaga, aí sim crie o segundo projeto.
+    </div>
+  </section>
+
+  <section class="tab-panel" id="publicar" role="tabpanel">
+    <h2>Publicar: GitHub → plataforma → build</h2>
+    <p class="sub">Você não configura servidor. Assina três serviços prontos: GitHub guarda o código, a plataforma executa, o registrador diz quem é dono do endereço.</p>
+    <div class="pipe">
+      <div class="st"><div class="t">git push</div><div class="d">repo local → GitHub</div></div>
+      <div class="ar">→</div>
+      <div class="st"><div class="t">Conectar plataforma</div><div class="d">Vercel/Netlify/Render ao repo</div></div>
+      <div class="ar">→</div>
+      <div class="st"><div class="t">Build</div><div class="d">prepara os arquivos</div></div>
+      <div class="ar">→</div>
+      <div class="st"><div class="t">No ar</div><div class="d">nome.vercel.app (temporário)</div></div>
+    </div>
+    <div class="callout"><b>O que é o build:</b> a plataforma prepara seus arquivos para serem servidos rápido (junta, comprime, otimiza). Se falhar, a versão anterior continua no ar — build quebrado não derruba o que já estava publicado.</div>
+    <div class="callout warn"><b>Aqui o branch do E04 ganha consequência:</b> <code>main</code> é o que está no ar. Mexer direto em <code>main</code> publica o erro. Trabalhar num branch e só levar para <code>main</code> o que funciona deixa de ser conceito e vira proteção.</div>
+    <p class="sub">Build falhou? Mesmo protocolo do E02: ler o log → copiar → colar no agente → chamar o monitor após duas tentativas.</p>
+  </section>
+
+  <section class="tab-panel" id="env" role="tabpanel">
+    <h2>Variáveis de ambiente em produção</h2>
+    <p>A regra do E10: segredo nunca vai no repositório (<code>.env</code> está no <code>.gitignore</code>). <b>A consequência:</b> a plataforma não tem as suas chaves — você cadastra à mão, uma vez, nas configurações do projeto.</p>
+    <table>
+      <tr><th>Variável</th><th>De onde vem</th></tr>
+      <tr><td>URL do Supabase</td><td>Painel do Supabase</td></tr>
+      <tr><td>Chave pública (anon) do Supabase</td><td>Painel do Supabase</td></tr>
+      <tr><td>Webhook do n8n</td><td>Painel do n8n</td></tr>
+      <tr><td>Token do MCP</td><td>Gerado no E10</td></tr>
+    </table>
+    <div class="callout danger">
+      <b>Sintoma clássico (a falha nº 1 do curso):</b> o site sobe, abre, e a tela de clientes fica vazia ou dá erro de conexão.
+      Não é o banco — são as variáveis faltando.
+    </div>
+    <div class="callout warn">
+      <b>Chave pública ≠ chave secreta.</b> A <b>anon</b> é pública e pode ir ao navegador — é o RLS do E05 que a torna segura.
+      A <b>service role</b> ignora RLS e <b>nunca</b> vai ao navegador nem ao repositório. Confundir faz o RLS inteiro virar decoração.
+    </div>
+  </section>
+
+  <section class="tab-panel" id="dns" role="tabpanel">
+    <h2>Domínio, DNS e SSL</h2>
+    <div class="card"><b>DNS</b> — a lista de contatos da internet. <code>seudominio.com.br</code> é o nome; o endereço do servidor é o número.</div>
+    <div class="card"><b>Propagação</b> — a resposta fica em cache (provedor, sistema, navegador). Até expirar, parte do mundo vê o endereço novo e parte vê o antigo. <b>Não é erro, é natureza.</b> "No celular abre e no PC não" = caches diferentes.</div>
+    <div class="card"><b>SSL</b> — o cadeado do <code>https://</code>. A plataforma cuida automaticamente.</div>
+    <table>
+      <tr><th>Registro</th><th>O que faz</th><th>Quando usar</th></tr>
+      <tr><td><b>A</b></td><td>Liga o nome a um IP fixo</td><td>Quando a plataforma dá um IP</td></tr>
+      <tr><td><b>CNAME</b></td><td>Liga o nome a <b>outro nome</b></td><td>Quando dá <code>nome.vercel.app</code> — o caso comum (preferível)</td></tr>
+    </table>
+    <div class="callout">
+      <b>O que o cadeado garante:</b> o tráfego está cifrado e o domínio é de quem diz ser.
+      <b>O que não garante:</b> que o site é confiável ou verdadeiro — site de golpe também tem cadeado. É o mínimo para não assustar o cliente, não desculpa para relaxar a régua do E01.
+    </div>
+    <div class="callout warn">
+      <b>Frase-síntese do curso:</b> você começou consultor que usa IA; termina consultor que construiu ferramenta própria.
+      O que sai daqui não é lista de prompts — é sistema publicado no seu endereço.
+    </div>
+  </section>
+
+  <footer>Mont Academy · Workshop Claude · Encontro 11. Checklist de publicação em <code>prompts/</code>.</footer>
+</div>
+<script>
+  document.querySelectorAll('.tab-btn').forEach(function(btn){ btn.addEventListener('click',function(){
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+    btn.classList.add('active'); document.getElementById(btn.dataset.tab).classList.add('active');
+  });});
+</script>
+</body>
+</html>
