@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>E08 — Automação e Fluxo de Transcrição</title>
+<style>
+  :root { --bg:#0f1115; --panel:#181b22; --panel-2:#1f232c; --term:#0b0d12; --ink:#e8eaed; --muted:#9aa3b2;
+    --accent:#6ea8fe; --accent-2:#7ee787; --warn:#f0b429; --danger:#ff7a7a; --border:#2a2f3a; }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg); color:var(--ink); line-height:1.55; padding:40px 24px 80px; }
+  .wrap { max-width:1040px; margin:0 auto; }
+  .eyebrow { color:var(--accent); font-weight:700; letter-spacing:.08em; text-transform:uppercase; font-size:13px; }
+  h1 { font-size:32px; margin:6px 0 8px; } .sub { color:var(--muted); font-size:17px; }
+  h2 { font-size:22px; margin:34px 0 14px; padding-bottom:8px; border-bottom:1px solid var(--border); }
+  h3 { font-size:16px; margin:20px 0 8px; }
+  code { font-family:"SF Mono",Menlo,Consolas,monospace; }
+  p code,li code,td code { background:var(--panel-2); padding:2px 6px; border-radius:4px; color:var(--accent-2); font-size:13.5px; }
+  .tabs { display:flex; gap:6px; margin:22px 0 10px; border-bottom:1px solid var(--border); flex-wrap:wrap; }
+  .tab-btn { background:transparent; border:none; color:var(--muted); font:inherit; font-weight:600; font-size:15px;
+    padding:12px 16px; cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-1px; }
+  .tab-btn:hover { color:var(--ink);} .tab-btn.active { color:var(--accent); border-bottom-color:var(--accent); }
+  .tab-panel { display:none; animation:fadeIn .25s ease; } .tab-panel.active { display:block; }
+  @keyframes fadeIn { from{opacity:0;} to{opacity:1;} }
+  .card { background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:18px 20px; margin:12px 0; }
+  .callout { background:var(--panel); border-left:4px solid var(--accent); border-radius:8px; padding:16px 20px; margin:16px 0; }
+  .callout.warn{border-left-color:var(--warn);} .callout.danger{border-left-color:var(--danger);}
+  .callout b{color:var(--accent);} .callout.warn b{color:var(--warn);} .callout.danger b{color:var(--danger);}
+  table { width:100%; border-collapse:collapse; margin:14px 0; background:var(--panel); border-radius:8px; overflow:hidden; }
+  th,td { padding:11px 13px; text-align:left; border-bottom:1px solid var(--border); vertical-align:top; font-size:14px; }
+  th { background:var(--panel-2); font-size:12.5px; letter-spacing:.03em; color:var(--muted); text-transform:uppercase; }
+  td code { color:var(--accent-2); }
+  /* flow */
+  .flow { display:flex; flex-direction:column; gap:0; margin:16px 0; max-width:560px; }
+  .fn { background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:12px 16px; }
+  .fn .t { font-weight:700; } .fn .d { color:var(--muted); font-size:13px; }
+  .fn.stop { background:#12100E; border-color:var(--warn); border-left:4px solid var(--warn); }
+  .fn.stop .t { color:var(--warn); }
+  .fdown { text-align:center; color:var(--muted); font-size:18px; line-height:1; margin:4px 0; }
+  footer { margin-top:48px; color:var(--muted); font-size:13px; border-top:1px solid var(--border); padding-top:16px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="eyebrow">Encontro 08 · Automação e Fluxo de Transcrição</div>
+  <h1>A reunião transcrita vira interação e tarefa — e o fluxo para</h1>
+  <p class="sub">Transcrição → ler → identificar cliente → criar interação → extrair tarefas → <b>parar e esperar você</b>. A parte difícil de automação não é fazer rodar; é fazer parar no lugar certo.</p>
+
+  <nav class="tabs" role="tablist">
+    <button class="tab-btn active" data-tab="anatomia">Anatomia do fluxo</button>
+    <button class="tab-btn" data-tab="camada2">n8n, 2ª camada</button>
+    <button class="tab-btn" data-tab="etapas">As 4 etapas</button>
+    <button class="tab-btn" data-tab="codigo">n8n × código</button>
+  </nav>
+
+  <section class="tab-panel active" id="anatomia" role="tabpanel">
+    <h2>Anatomia do workflow, com dado real</h2>
+    <table>
+      <tr><th>Parte</th><th>Neste exemplo</th></tr>
+      <tr><td>Gatilho</td><td>Novo arquivo <code>.txt</code> em <code>transcricoes/</code> (ou webhook)</td></tr>
+      <tr><td>Entrada</td><td>Transcrição + <code>CLAUDE.md</code> (E03) + tabela <code>cliente</code> (E05)</td></tr>
+      <tr><td>Etapas</td><td>Ler → identificar cliente → criar <code>interacao</code> → extrair tarefas → salvar rascunho</td></tr>
+      <tr><td><b>Revisão humana</b></td><td><b>Obrigatória.</b> O fluxo para. Detalhe no E09</td></tr>
+      <tr><td>Saída</td><td>Só após aprovação — assunto do E09</td></tr>
+    </table>
+    <div class="flow">
+      <div class="fn"><div class="t">⚡ Gatilho</div><div class="d">arquivo novo em transcricoes/</div></div>
+      <div class="fdown">↓</div>
+      <div class="fn"><div class="t">1 · Ler transcrição</div></div>
+      <div class="fdown">↓</div>
+      <div class="fn stop"><div class="t">2 · Identificou o cliente? — se NÃO, PARA</div><div class="d">pede input humano (ambiguidade não escolhe sozinha)</div></div>
+      <div class="fdown">↓</div>
+      <div class="fn"><div class="t">3 · Resumo em 3 bullets</div></div>
+      <div class="fdown">↓</div>
+      <div class="fn"><div class="t">4 · Extrair compromissos</div><div class="d">"vou te mandar", "combinamos que"</div></div>
+      <div class="fdown">↓</div>
+      <div class="fn"><div class="t">Salvar como RASCUNHO</div><div class="d">nada publicado ainda</div></div>
+      <div class="fdown">↓</div>
+      <div class="fn stop"><div class="t">PARA — revisão humana (E09)</div></div>
+    </div>
+    <div class="callout"><b>O fluxo automatiza a montagem, não a decisão.</b> Os dois quadros de parada são o conteúdo do E09 — e são exatamente o que não pode faltar num contexto regulado.</div>
+  </section>
+
+  <section class="tab-panel" id="camada2" role="tabpanel">
+    <h2>n8n, segunda camada: o fluxo agora decide</h2>
+    <p>Do E06 você já tem três conceitos: gatilho, nó, tratamento de erro. A carga era uma <b>linha reta</b>. Hoje o fluxo <b>toma decisões</b>:</p>
+    <table>
+      <tr><th>Conceito</th><th>O que é</th><th>Por que só agora</th></tr>
+      <tr><td><b>Condicional</b></td><td>"se X, faça isso; senão, aquilo"</td><td>A carga do E06 não decidia nada; este precisa saber se achou o cliente</td></tr>
+      <tr><td><b>IA dentro do nó</b></td><td>Um nó chama o modelo e usa a resposta</td><td>Resumir e extrair tarefa é interpretação, não cálculo determinístico</td></tr>
+      <tr><td><b>Nó humano</b> (E09)</td><td>Pausa até alguém aprovar</td><td>O fluxo já vai parar por causa dele</td></tr>
+    </table>
+    <div class="callout danger">
+      <b>A diferença que muda tudo:</b> o fluxo do E06 sempre faz a mesma coisa (testa 1× e confia). O de hoje
+      <b>tem IA dentro</b> — a mesma transcrição pode gerar resumos diferentes (variação, princípio 4 do E01).
+      <b>Automação determinística você testa e esquece; automação com IA dentro você testa e revisa sempre.</b>
+      Por isso este fluxo para e o do E06 não para.
+    </div>
+    <div class="callout warn">As três perguntas de erro do E06 continuam; a terceira ganha peso: <b>se rodar de novo, duplica?</b> Processar a mesma transcrição 2× e criar 2 interações é o erro mais provável da semana — idempotência aplicada a outra carga.</div>
+  </section>
+
+  <section class="tab-panel" id="etapas" role="tabpanel">
+    <h2>As quatro etapas no canvas</h2>
+    <h3>Etapa 1 — ler transcrição</h3>
+    <p class="sub">Nó de leitura de arquivo. A turma vê o dado entrando no canvas.</p>
+    <h3>Etapa 2 — identificar o cliente <span style="color:var(--warn)">(a que mais erra)</span></h3>
+    <table>
+      <tr><th>Situação</th><th>O que o fluxo deve fazer</th></tr>
+      <tr><td>Achou um cliente</td><td>Associa e segue</td></tr>
+      <tr><td>Não achou nenhum</td><td><b>Para</b> e pede input</td></tr>
+      <tr><td>Achou mais de um (dois "João")</td><td><b>Para</b> e pede escolha</td></tr>
+      <tr><td>Nome diferente ("Zé" vs "José")</td><td>Para — não adivinhar</td></tr>
+    </table>
+    <div class="callout danger"><b>Ambiguidade para o fluxo, não escolhe por você.</b> Associar ao cliente errado é pior que não associar — polui a linha do tempo de duas pessoas e você não descobre. Mesma lógica do E01: "não sei" não libera.</div>
+    <h3>Etapa 3 — criar a interação com resumo em 3 bullets</h3>
+    <p>Grava em <code>interacao</code>: canal = reunião, data, <code>cliente_id</code>, e <b>resumo em 3 bullets</b>. Formato fixo é revisável em 10 segundos; resumo de 4 parágrafos ninguém confere. O <code>CLAUDE.md</code> do E03 é a entrada do nó — <b>primeira vez que o arquivo de regra é consumido por um sistema</b>, não por você.</p>
+    <h3>Etapa 4 — extrair tarefas de follow-up</h3>
+    <div class="callout warn">
+      <b>Extrair é mais difícil que resumir — e a turma subestima:</b>
+      <br>• <b>Resumir</b> é compressão: erra por omissão (visível na revisão).
+      <br>• <b>Extrair compromisso</b> é interpretação: erra por <b>invenção</b>, e invenção plausível passa na leitura rápida.
+      <br>Tarefa com prazo que ninguém combinou é o erro típico — por isso a revisão do E09 é obrigatória, não recomendada.
+    </div>
+    <p class="sub">Tudo salvo como <b>rascunho</b>. Nada sai, nada notifica, nada vai ao cliente. O fluxo para aqui.</p>
+  </section>
+
+  <section class="tab-panel" id="codigo" role="tabpanel">
+    <h2>O mesmo fluxo em código: quando vale cada um</h2>
+    <p>Você construiu arrastando caixas. Mas tem um agente que escreve código. Por que não pedir para ele? <b>Pode, e às vezes deve.</b> Este bloco é sobre escolher.</p>
+    <table>
+      <tr><th></th><th>n8n</th><th>Código no seu repositório</th></tr>
+      <tr><td>Quem mexe</td><td>Você, arrastando. Entende olhando</td><td>Você, pedindo ao agente. Precisa ler</td></tr>
+      <tr><td>Versionado no git (E04)</td><td><b>Não</b> — o canvas vive fora do histórico</td><td><b>Sim</b> — cada mudança é um commit</td></tr>
+      <tr><td>Onde o dado passa</td><td>Pela infra do n8n (+1 resposta às 3 perguntas do E01)</td><td>Só pela sua aplicação e banco</td></tr>
+      <tr><td>Custo</td><td>Assinatura por execução/mês</td><td>Já pago: roda onde a aplicação roda</td></tr>
+      <tr><td>Conectar pronto (Gmail, Drive)</td><td>Nó pronto, minutos</td><td>O agente escreve a integração</td></tr>
+      <tr><td>Lógica complicada</td><td>Fica feio rápido</td><td>Naturalmente melhor</td></tr>
+    </table>
+    <div class="card">
+      <b>Dois critérios práticos:</b>
+      <br>1. Conecta serviços de terceiros (Gmail, Sheets)? → <b>n8n ganha</b>.
+      <br>2. Mexe no seu banco e na sua regra? → <b>código ganha</b>.
+      <br><span class="sub">O fluxo de hoje está na fronteira: lê arquivo (n8n bom) e grava no banco seguindo o <code>CLAUDE.md</code> (código bom).</span>
+    </div>
+    <div class="callout danger"><b>O ponto que a turma não percebe sozinha:</b> o fluxo do n8n <b>não está no seu git</b>. Se alguém alterar o canvas e quebrar, não há <code>git checkout</code>. Na prática: <b>exporte o <code>.json</code> do fluxo e commite</b> no repositório. Não é automático — é hábito.</div>
+    <div class="callout">Não venda código como "o jeito avançado". São ferramentas diferentes para problemas diferentes. <b>n8n para ligar coisas que já existem; código para a regra que é sua.</b></div>
+  </section>
+
+  <footer>Mont Academy · Workshop Claude · Encontro 08. Transcrição de exemplo em <code>encontro-03/artefatos/</code>; prompts em <code>prompts/</code>.</footer>
+</div>
+<script>
+  document.querySelectorAll('.tab-btn').forEach(function(btn){ btn.addEventListener('click',function(){
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+    btn.classList.add('active'); document.getElementById(btn.dataset.tab).classList.add('active');
+  });});
+</script>
+</body>
+</html>
