@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>E02 — Famílias de ferramenta e Setup</title>
+<style>
+  :root { --bg:#0f1115; --panel:#181b22; --panel-2:#1f232c; --term:#0b0d12; --ink:#e8eaed; --muted:#9aa3b2;
+    --accent:#6ea8fe; --accent-2:#7ee787; --warn:#f0b429; --danger:#ff7a7a; --border:#2a2f3a; }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg); color:var(--ink); line-height:1.55; padding:40px 24px 80px; }
+  .wrap { max-width:1040px; margin:0 auto; }
+  .eyebrow { color:var(--accent); font-weight:700; letter-spacing:.08em; text-transform:uppercase; font-size:13px; }
+  h1 { font-size:32px; margin:6px 0 8px; } .sub { color:var(--muted); font-size:17px; }
+  h2 { font-size:22px; margin:34px 0 14px; padding-bottom:8px; border-bottom:1px solid var(--border); }
+  h3 { font-size:16px; margin:20px 0 8px; }
+  code { font-family:"SF Mono",Menlo,Consolas,monospace; }
+  p code,li code,td code { background:var(--panel-2); padding:2px 6px; border-radius:4px; color:var(--accent-2); font-size:13.5px; }
+  .tabs { display:flex; gap:6px; margin:22px 0 10px; border-bottom:1px solid var(--border); flex-wrap:wrap; }
+  .tab-btn { background:transparent; border:none; color:var(--muted); font:inherit; font-weight:600; font-size:15px;
+    padding:12px 16px; cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-1px; }
+  .tab-btn:hover { color:var(--ink);} .tab-btn.active { color:var(--accent); border-bottom-color:var(--accent); }
+  .tab-panel { display:none; animation:fadeIn .25s ease; } .tab-panel.active { display:block; }
+  @keyframes fadeIn { from{opacity:0;} to{opacity:1;} }
+  .card { background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:18px 20px; margin:12px 0; }
+  .callout { background:var(--panel); border-left:4px solid var(--accent); border-radius:8px; padding:16px 20px; margin:16px 0; }
+  .callout.warn{border-left-color:var(--warn);} .callout.danger{border-left-color:var(--danger);}
+  .callout b{color:var(--accent);} .callout.warn b{color:var(--warn);} .callout.danger b{color:var(--danger);}
+  table { width:100%; border-collapse:collapse; margin:14px 0; background:var(--panel); border-radius:8px; overflow:hidden; }
+  th,td { padding:11px 13px; text-align:left; border-bottom:1px solid var(--border); vertical-align:top; font-size:14px; }
+  th { background:var(--panel-2); font-size:12.5px; letter-spacing:.03em; color:var(--muted); text-transform:uppercase; }
+  td code { color:var(--accent-2); }
+  .fam { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin:14px 0; }
+  .fcard { background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:14px; }
+  .fcard .n { font-size:12px; color:var(--muted); } .fcard .t { font-weight:800; margin:4px 0; }
+  .fcard .d { color:var(--muted); font-size:12.5px; }
+  .fcard.f4 { border-left:3px solid var(--accent-2); } .fcard.f4 .t { color:var(--accent-2); }
+  @media(max-width:760px){ .fam{grid-template-columns:1fr 1fr;} }
+  .spectrum { display:flex; align-items:stretch; gap:0; margin:14px 0; }
+  .sp { flex:1; border:1px solid var(--border); border-radius:10px; padding:14px; }
+  .sp.in { border-left:4px solid var(--accent-2);} .sp.on { border-left:4px solid var(--warn);} .sp.out { border-left:4px solid var(--danger); background:#12100E;}
+  .sp .t { font-weight:700; } .sp.in .t{color:var(--accent-2);} .sp.on .t{color:var(--warn);} .sp.out .t{color:var(--danger);}
+  .sp .d { color:var(--muted); font-size:12.5px; margin-top:6px; }
+  .sp .ar { text-align:center; }
+  @media(max-width:760px){ .spectrum{flex-direction:column;} }
+  .term-box { background:var(--term); border:1px solid var(--border); border-radius:10px; overflow:hidden; margin:12px 0; }
+  .term-bar { background:var(--panel-2); padding:7px 12px; display:flex; gap:6px; align-items:center; border-bottom:1px solid var(--border); }
+  .term-bar i { width:11px;height:11px;border-radius:50%; } .term-bar i:nth-child(1){background:#ff5f56;} .term-bar i:nth-child(2){background:#ffbd2e;} .term-bar i:nth-child(3){background:#27c93f;}
+  .term-bar span { margin-left:8px; color:var(--muted); font-size:12px; font-family:"SF Mono",monospace; }
+  .term-body { padding:14px 16px; font-family:"SF Mono",monospace; font-size:13px; white-space:pre-wrap; }
+  .term-body .p{color:var(--accent);} .term-body .c{color:var(--muted);} .term-body .ok{color:var(--accent-2);}
+  footer { margin-top:48px; color:var(--muted); font-size:13px; border-top:1px solid var(--border); padding-top:16px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="eyebrow">Encontro 02 · Diferenciar Ferramentas e Setup</div>
+  <h1>De usuário de uma ferramenta a operador de um ambiente</h1>
+  <p class="sub">Quatro famílias de ferramenta, quanto controle você mantém, e o Claude Code rodando na sua máquina.</p>
+
+  <nav class="tabs" role="tablist">
+    <button class="tab-btn active" data-tab="familias">4 famílias</button>
+    <button class="tab-btn" data-tab="espectro">Espectro de controle</button>
+    <button class="tab-btn" data-tab="desktop">Claude por dentro</button>
+    <button class="tab-btn" data-tab="mcp">MCP</button>
+    <button class="tab-btn" data-tab="setup">Instalação</button>
+  </nav>
+
+  <section class="tab-panel active" id="familias" role="tabpanel">
+    <h2>As quatro famílias de ferramenta</h2>
+    <div class="fam">
+      <div class="fcard"><div class="n">Família 1</div><div class="t">Chat</div><div class="d">Você conversa, ela responde. Nada acontece sem copiar e colar.</div></div>
+      <div class="fcard"><div class="n">Família 2</div><div class="t">Agente c/ ferramentas</div><div class="d">Consulta fontes e age em sistemas conectados.</div></div>
+      <div class="fcard"><div class="n">Família 3</div><div class="t">Orquestrador</div><div class="d">Roda sozinho a partir de um gatilho (n8n).</div></div>
+      <div class="fcard f4"><div class="n">Família 4</div><div class="t">Agente de código</div><div class="d">Lê e edita arquivos na sua máquina (Claude Code).</div></div>
+    </div>
+    <p>As três primeiras você <b>usa</b>. A quarta você <b>opera</b> — e é ela que constrói o sistema do E05 em diante.</p>
+    <h3>Qual família resolve? (a pergunta de cima decide quase tudo)</h3>
+    <div class="card">
+      O resultado precisa <b>virar arquivo ou sistema que fica</b>? → <b style="color:var(--accent-2)">Família 4 (agente de código)</b><br>
+      Senão, precisa <b>acontecer sem você presente</b>? → <b>Família 3 (orquestrador)</b><br>
+      Senão, precisa <b>ler/agir num sistema seu</b> (e-mail, agenda, banco)? → <b>Família 2</b><br>
+      Senão → <b>Família 1 (chat)</b>
+    </div>
+    <div class="callout warn">Consultor passa anos na família 1 pedindo resultado da família 4 — e conclui que "IA não serve para o meu trabalho".</div>
+    <h3>As três perguntas do E01, por família</h3>
+    <table>
+      <tr><th>Família</th><th>Onde o dado fica</th><th>Quem acessa</th></tr>
+      <tr><td>1 · Chat</td><td>Servidor do provedor</td><td>Provedor, conforme plano</td></tr>
+      <tr><td>2 · Agente c/ ferramentas</td><td>Provedor + o sistema conectado</td><td>Amplia: o conector lê seu e-mail, sua agenda</td></tr>
+      <tr><td>3 · Orquestrador</td><td>Servidor da plataforma de fluxo</td><td>Plataforma + cada serviço do fluxo</td></tr>
+      <tr><td>4 · Agente de código</td><td><b>Na sua máquina</b></td><td>Você — o arquivo só sai se você mandar</td></tr>
+    </table>
+    <p class="sub">A família 4 é a mais poderosa e, por ser local, a de menor superfície de exposição. Não é coincidência que o curso construa nela.</p>
+  </section>
+
+  <section class="tab-panel" id="espectro" role="tabpanel">
+    <h2>Quanto controle você mantém enquanto ela age</h2>
+    <div class="spectrum">
+      <div class="sp in"><div class="t">Human-in-the-loop</div><div class="d">Propõe; você aprova <b>cada ação</b>. É o "ler → propor → executar" da instalação.</div></div>
+      <div class="sp ar" style="flex:0 0 30px;display:grid;place-items:center;color:var(--muted)">→</div>
+      <div class="sp on"><div class="t">Human-on-the-loop</div><div class="d">Age sozinho; você <b>supervisiona</b> e pode intervir. Um fluxo agendado (família 3).</div></div>
+      <div class="sp ar" style="flex:0 0 30px;display:grid;place-items:center;color:var(--muted)">→</div>
+      <div class="sp out"><div class="t">Human-out-of-the-loop</div><div class="d">Ninguém revisa. <b>Nenhum uso aprovado neste curso.</b></div></div>
+    </div>
+    <div class="callout danger">
+      <b>"100% automatizado" é discurso de produto, não critério de trabalho.</b> O critério não é "quanto dá para automatizar",
+      é "quanto você pode automatizar <b>sem deixar de responder pela decisão</b>". Art. 17 CVM 19: automação não mitiga a sua responsabilidade.
+    </div>
+    <p class="sub">As famílias diferem em <i>o que fazem</i>; este espectro, em <i>quanto decidem sem você</i>. Um agente de código que você deixa "resolver tudo" sem revisar o diff está deslizando para out-of-the-loop. Esta régua volta formal no E08 (revisão) e E09 ("IA transforma e sugere; o banco calcula; você decide").</p>
+  </section>
+
+  <section class="tab-panel" id="desktop" role="tabpanel">
+    <h2>Claude por dentro</h2>
+    <p>Claude é a inteligência; ela aparece em várias interfaces. As que mais importam aqui:</p>
+    <table>
+      <tr><th>Interface</th><th>Para quê</th></tr>
+      <tr><td><b>Claude.ai</b> (web/desktop/app)</td><td>Conversas, escrita, análise, criar arquivos — o foco do dia a dia</td></tr>
+      <tr><td><b>Claude Code</b></td><td>Edita arquivos, roda comandos, faz commits — a família 4 do curso</td></tr>
+      <tr><td><b>Claude no Slack / 365 / Design</b></td><td>Claude dentro das ferramentas que você já usa</td></tr>
+    </table>
+    <h3>Claude Desktop — funcionalidades que você vai usar</h3>
+    <table>
+      <tr><th>Funcionalidade</th><th>Por que importa</th></tr>
+      <tr><td><b>Conversas</b></td><td>Retoma um chat antigo em vez de recomeçar do zero</td></tr>
+      <tr><td><b>Projects</b></td><td>Instrução que você escreve uma vez e vale em toda conversa — a ideia que vira <code>CLAUDE.md</code> no E03</td></tr>
+      <tr><td><b>Artifacts</b></td><td>Documento/código numa janela ao lado, editável e exportável</td></tr>
+      <tr><td><b>Conectores (MCP)</b></td><td>Liga a Gmail, Drive, Calendar, ou o MCP da Mont</td></tr>
+      <tr><td><b>Anexar arquivo</b></td><td>Onde a régua do E01 vale: planilha sobe <b>sem</b> coluna de identificação</td></tr>
+      <tr><td><b>Config → Privacidade</b></td><td>Liga/desliga se a conversa alimenta o treinamento — confirme ao vivo que fez</td></tr>
+    </table>
+  </section>
+
+  <section class="tab-panel" id="mcp" role="tabpanel">
+    <h2>MCP em 5 minutos</h2>
+    <p>MCP é um <b>protocolo aberto</b> — o <b>USB-C das ferramentas de IA</b>. Antes, cada integração era um cabo proprietário; com um padrão, a mesma ferramenta (Gmail, Drive, banco, sistema da Mont) serve a qualquer cliente que fale o protocolo.</p>
+    <table>
+      <tr><th>Papel</th><th>O que é</th><th>No curso</th></tr>
+      <tr><td><b>Servidor MCP</b></td><td>Quem expõe ferramentas</td><td>Você constrói um no E10</td></tr>
+      <tr><td><b>Cliente MCP</b></td><td>Quem consome (Claude Code, chat c/ conectores)</td><td>Usado desde hoje</td></tr>
+      <tr><td><b>Ferramenta</b></td><td>Ação nomeada, com entrada e saída</td><td><code>criar_tarefa</code> no E10</td></tr>
+    </table>
+    <div class="callout">Uma ferramenta tem <b>nome</b>, <b>descrição</b> (o que o modelo lê para decidir se usa), <b>entrada</b> e <b>saída</b>. A descrição é a parte subestimada: ferramenta mal descrita não é chamada. O MCP da Mont aparece no E05.</div>
+  </section>
+
+  <section class="tab-panel" id="setup" role="tabpanel">
+    <h2>Instalação — o bloco crítico</h2>
+    <div class="callout"><b>O terminal é a mesma pasta que você já usa, sem os ícones.</b> No Explorador você clica para entrar; no terminal você escreve o nome. Faz as mesmas coisas.</div>
+    <table>
+      <tr><th>Terminal</th><th>No Explorador/Finder seria</th></tr>
+      <tr><td><code>cd nome-da-pasta</code></td><td>Dar duplo clique na pasta</td></tr>
+      <tr><td><code>ls</code> (ou <code>dir</code> no Windows)</td><td>Olhar o que tem na janela</td></tr>
+      <tr><td><code>cd ..</code></td><td>Clicar na seta de voltar</td></tr>
+    </table>
+    <p class="sub">Ninguém precisa decorar comandos — você copia e cola do material, e o agente escreve os difíceis. Os comandos exatos ficam no material de apoio (mudam a cada trimestre).</p>
+    <h3>Cinco passos</h3>
+    <div class="card">1. Abrir o terminal · 2. Rodar o instalador · 3. Entrar na conta · 4. Conferir a instalação · 5. <code>cd pasta-do-curso &amp;&amp; claude</code></div>
+    <div class="callout danger">
+      <b>Ler erro é a habilidade mais subestimada do programa.</b> Silêncio no terminal costuma ser sucesso; é o erro que fala alto.
+      Quando der erro: <b>leia a mensagem inteira → copie inteira → cole no agente → chame o monitor após duas tentativas.</b> Cole as 12 linhas, não "deu erro de permissão".
+    </div>
+    <h3>Primeiro contato: ler → propor → executar</h3>
+    <div class="term-box">
+      <div class="term-bar"><i></i><i></i><i></i><span>as três frases, nesta ordem</span></div>
+      <div class="term-body"><span class="p">1</span> "Leia os arquivos desta pasta e me explique o que tem aqui."
+<span class="p">2</span> "O que você mudaria para o título ficar com o meu nome? Não altere ainda."
+<span class="p">3</span> "Pode fazer a alteração que você propôs."
+<span class="ok">→ ler, propor, executar — vale para o resto do curso</span></div>
+    </div>
+    <div class="callout warn">
+      <b>As contas do programa</b> (agente, GitHub, Supabase, n8n) em 6 semanas dão acesso ao banco dos seus clientes. Duas regras, só duas:
+      <b>2FA ligado em todas</b> e <b>gerenciador de senhas</b> (senha diferente em cada, nenhuma na cabeça). "Quem acessa" (E01) inclui quem descobriu a sua senha.
+    </div>
+  </section>
+
+  <footer>Mont Academy · Workshop Claude · Encontro 02. Prompts de primeiro contato em <code>prompts/</code>.</footer>
+</div>
+<script>
+  document.querySelectorAll('.tab-btn').forEach(function(btn){ btn.addEventListener('click',function(){
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+    btn.classList.add('active'); document.getElementById(btn.dataset.tab).classList.add('active');
+  });});
+</script>
+</body>
+</html>
