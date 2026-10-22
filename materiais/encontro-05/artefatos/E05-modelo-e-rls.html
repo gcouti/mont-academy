@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>E05 — Modelagem de Dados e RLS</title>
+<style>
+  :root {
+    --bg: #0f1115; --panel: #181b22; --panel-2: #1f232c; --term: #0b0d12;
+    --ink: #e8eaed; --muted: #9aa3b2; --accent: #6ea8fe; --accent-2: #7ee787;
+    --warn: #f0b429; --danger: #ff7a7a; --border: #2a2f3a;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg); color: var(--ink); line-height: 1.55; padding: 40px 24px 80px; }
+  .wrap { max-width: 1040px; margin: 0 auto; }
+  header { margin-bottom: 8px; }
+  .eyebrow { color: var(--accent); font-weight: 700; letter-spacing: .08em; text-transform: uppercase; font-size: 13px; }
+  h1 { font-size: 32px; margin: 6px 0 8px; }
+  .sub { color: var(--muted); font-size: 17px; }
+  h2 { font-size: 22px; margin: 34px 0 14px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+  h3 { font-size: 16px; margin: 22px 0 8px; }
+  code { font-family: "SF Mono", Menlo, Consolas, monospace; }
+  p code, li code, td code { background: var(--panel-2); padding: 2px 6px; border-radius: 4px; color: var(--accent-2); font-size: 13.5px; }
+
+  .tabs { display: flex; gap: 6px; margin: 22px 0 10px; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+  .tab-btn { background: transparent; border: none; color: var(--muted); font: inherit; font-weight: 600; font-size: 15px;
+    padding: 12px 16px; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+  .tab-btn:hover { color: var(--ink); }
+  .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .tab-panel { display: none; animation: fadeIn .25s ease; }
+  .tab-panel.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+  .card { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 20px; margin: 14px 0; }
+  .callout { background: var(--panel); border-left: 4px solid var(--accent); border-radius: 8px; padding: 16px 20px; margin: 16px 0; }
+  .callout.warn { border-left-color: var(--warn); } .callout.danger { border-left-color: var(--danger); }
+  .callout b { color: var(--accent); } .callout.warn b { color: var(--warn); } .callout.danger b { color: var(--danger); }
+
+  table { width: 100%; border-collapse: collapse; margin: 14px 0; background: var(--panel); border-radius: 8px; overflow: hidden; }
+  th, td { padding: 12px 14px; text-align: left; border-bottom: 1px solid var(--border); vertical-align: top; font-size: 14.5px; }
+  th { background: var(--panel-2); font-size: 13px; letter-spacing: .03em; color: var(--muted); text-transform: uppercase; }
+  td code { color: var(--accent-2); }
+
+  .er { width: 100%; max-width: 820px; margin: 10px 0; }
+  .legend { display: flex; gap: 18px; flex-wrap: wrap; color: var(--muted); font-size: 13px; margin-top: 8px; }
+  .legend span { display: inline-flex; align-items: center; gap: 7px; }
+  .legend i { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+
+  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 16px 0; }
+  .vault { border-radius: 12px; padding: 18px 20px; border: 1px solid var(--border); }
+  .vault h3 { margin: 0 0 10px; display: flex; align-items: center; gap: 8px; }
+  .vault.bad { background: rgba(255,122,122,.06); border-left: 4px solid var(--danger); }
+  .vault.good { background: rgba(126,231,135,.06); border-left: 4px solid var(--accent-2); }
+  .vault.bad h3 { color: var(--danger); } .vault.good h3 { color: var(--accent-2); }
+  .rowset { font-family: "SF Mono", monospace; font-size: 12.5px; margin-top: 10px; }
+  .rowset .r { padding: 5px 8px; border-radius: 5px; margin-bottom: 4px; background: var(--term); border: 1px solid var(--border); color: var(--muted); }
+  .rowset .r.mine { color: var(--ink); border-color: var(--accent-2); }
+  .rowset .r.hidden { opacity: .4; text-decoration: line-through; }
+
+  .term-box { background: var(--term); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; margin: 12px 0; }
+  .term-bar { background: var(--panel-2); padding: 7px 12px; display: flex; gap: 6px; align-items: center; border-bottom: 1px solid var(--border); }
+  .term-bar i { width: 11px; height: 11px; border-radius: 50%; display: inline-block; }
+  .term-bar i:nth-child(1){ background:#ff5f56; } .term-bar i:nth-child(2){ background:#ffbd2e; } .term-bar i:nth-child(3){ background:#27c93f; }
+  .term-bar span { margin-left: 8px; color: var(--muted); font-size: 12px; font-family: "SF Mono", monospace; }
+  .term-body { padding: 14px 16px; font-family: "SF Mono", monospace; font-size: 13px; }
+  .term-body .k { color: var(--accent); } .term-body .s { color: var(--accent-2); } .term-body .c { color: var(--muted); }
+
+  footer { margin-top: 48px; color: var(--muted); font-size: 13px; border-top: 1px solid var(--border); padding-top: 16px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Encontro 05 · Modelagem de Dados e CRM</div>
+    <h1>O que você precisa guardar sobre um cliente</h1>
+    <p class="sub">Modelar as entidades da consultoria, criar o banco próprio e trancá-lo com políticas de acesso por linha — o mínimo para pôr dado real sem violar a régua do E01.</p>
+  </header>
+
+  <nav class="tabs" role="tablist">
+    <button class="tab-btn active" data-tab="modelagem">Modelagem</button>
+    <button class="tab-btn" data-tab="perguntas">As 3 perguntas</button>
+    <button class="tab-btn" data-tab="auth">Autenticação</button>
+    <button class="tab-btn" data-tab="rls">RLS: cofre × planilha</button>
+  </nav>
+
+  <!-- ============ MODELAGEM ============ -->
+  <section class="tab-panel active" id="modelagem" role="tabpanel">
+    <h2>As cinco entidades da consultoria</h2>
+    <p><b>Modelagem é decisão de negócio, não de tecnologia.</b> Se você não sabe o que precisa guardar, banco algum resolve. O curso usa cinco entidades — e uma só forma de relacionamento.</p>
+
+    <svg class="er" viewBox="0 0 820 500" xmlns="http://www.w3.org/2000/svg" font-family="SF Mono, monospace">
+      <!-- connectors CLIENTE -> satellites -->
+      <g stroke="#2a2f3a" stroke-width="2" fill="none">
+        <path d="M250 285 C 360 285, 360 70,  470 70"/>
+        <path d="M250 285 C 360 285, 360 185, 470 185"/>
+        <path d="M250 285 C 360 285, 360 300, 470 300"/>
+        <path d="M250 285 C 360 300, 360 415, 470 415"/>
+      </g>
+      <!-- relationship labels -->
+      <g fill="#6ea8fe" font-size="11" text-anchor="middle">
+        <text x="360" y="62">1 ──&lt; N</text>
+        <text x="360" y="177">1 ──&lt; N</text>
+        <text x="360" y="292">1 ──&lt; N</text>
+        <text x="360" y="407">1 ──&lt; N</text>
+      </g>
+
+      <!-- CLIENTE -->
+      <g>
+        <rect x="40" y="195" width="210" height="180" rx="10" fill="#1f232c" stroke="#7ee787" stroke-width="2"/>
+        <rect x="40" y="195" width="210" height="28" rx="10" fill="#7ee787" opacity="0.12"/>
+        <text x="56" y="214" fill="#7ee787" font-size="14" font-weight="bold">cliente</text>
+        <g fill="#9aa3b2" font-size="12">
+          <text x="56" y="244"><tspan fill="#6ea8fe">id</tspan>  uuid · PK</text>
+          <text x="56" y="266" fill="#e8eaed">nome</text>
+          <text x="56" y="288">doc</text>
+          <text x="56" y="310" fill="#e8eaed">faixa_patrimonio</text>
+          <text x="56" y="332">perfil</text>
+          <text x="56" y="358"><tspan fill="#f0b429">owner_id</tspan>  uuid</text>
+        </g>
+      </g>
+
+      <!-- satellites -->
+      <!-- interacao -->
+      <g>
+        <rect x="470" y="20" width="310" height="100" rx="10" fill="#181b22" stroke="#2a2f3a"/>
+        <text x="486" y="42" fill="#e8eaed" font-size="13" font-weight="bold">interacao</text>
+        <g fill="#9aa3b2" font-size="11.5">
+          <text x="486" y="63"><tspan fill="#6ea8fe">cliente_id</tspan> · data · canal</text>
+          <text x="486" y="82">resumo</text>
+          <text x="486" y="104"><tspan fill="#f0b429">owner_id</tspan></text>
+        </g>
+      </g>
+      <!-- oportunidade -->
+      <g>
+        <rect x="470" y="135" width="310" height="100" rx="10" fill="#181b22" stroke="#2a2f3a"/>
+        <text x="486" y="157" fill="#e8eaed" font-size="13" font-weight="bold">oportunidade</text>
+        <g fill="#9aa3b2" font-size="11.5">
+          <text x="486" y="178"><tspan fill="#6ea8fe">cliente_id</tspan> · valor_estimado</text>
+          <text x="486" y="197">estagio · produto</text>
+          <text x="486" y="219"><tspan fill="#f0b429">owner_id</tspan></text>
+        </g>
+      </g>
+      <!-- tarefa -->
+      <g>
+        <rect x="470" y="250" width="310" height="100" rx="10" fill="#181b22" stroke="#2a2f3a"/>
+        <text x="486" y="272" fill="#e8eaed" font-size="13" font-weight="bold">tarefa</text>
+        <g fill="#9aa3b2" font-size="11.5">
+          <text x="486" y="293"><tspan fill="#6ea8fe">cliente_id</tspan> · prazo · feito</text>
+          <text x="486" y="312">responsavel</text>
+          <text x="486" y="334"><tspan fill="#f0b429">owner_id</tspan></text>
+        </g>
+      </g>
+      <!-- posicao -->
+      <g>
+        <rect x="470" y="365" width="310" height="110" rx="10" fill="#181b22" stroke="#2a2f3a"/>
+        <text x="486" y="387" fill="#e8eaed" font-size="13" font-weight="bold">posicao</text>
+        <g fill="#9aa3b2" font-size="11.5">
+          <text x="486" y="408"><tspan fill="#6ea8fe">cliente_id</tspan> · data</text>
+          <text x="486" y="427">ativo · classe · valor</text>
+          <text x="486" y="449"><tspan fill="#f0b429">owner_id</tspan></text>
+        </g>
+      </g>
+    </svg>
+    <div class="legend">
+      <span><i style="background:#7ee787"></i>cliente (entidade central)</span>
+      <span><i style="background:#6ea8fe"></i>cliente_id — o relacionamento</span>
+      <span><i style="background:#f0b429"></i>owner_id — serve ao RLS</span>
+    </div>
+
+    <table>
+      <tr><th>Entidade</th><th>O que representa</th><th>Exemplos de coluna</th></tr>
+      <tr><td><code>cliente</code></td><td>Pessoa ou empresa que você atende</td><td>nome, doc, faixa de patrimônio, perfil</td></tr>
+      <tr><td><code>interacao</code></td><td>Todo contato: reunião, mensagem, e-mail</td><td>data, canal, resumo, cliente_id</td></tr>
+      <tr><td><code>oportunidade</code></td><td>Coisa em aberto que pode virar negócio</td><td>valor estimado, estágio, produto, cliente_id</td></tr>
+      <tr><td><code>tarefa</code></td><td>O que você tem que fazer</td><td>prazo, responsável, cliente_id, feito</td></tr>
+      <tr><td><code>posicao</code></td><td>Fotografia da carteira do cliente numa data</td><td>data, ativo, classe, valor, cliente_id</td></tr>
+    </table>
+
+    <div class="callout">
+      <b>Relacionamento é só "uma coluna que aponta para outra tabela".</b>
+      <code>interacao.cliente_id</code> diz "esta interação é do cliente cujo id é X". O <code>||──&lt;</code> do
+      diagrama quer dizer <b>um cliente, muitas interações</b>. É a única forma de relacionamento que o curso usa.
+    </div>
+
+    <div class="callout warn">
+      <b>Por que <code>faixa_patrimonio</code> e não <code>patrimonio</code>:</b> a coluna guarda faixa, não valor exato —
+      alinhada à régua de anonimização do E01. <b>O que não é guardado não vaza.</b> Quem precisar do número
+      exato tem em <code>posicao</code>, com acesso mais restrito.
+    </div>
+
+    <div class="callout">
+      <b>O <code>owner_id</code> nas cinco tabelas</b> não é modelagem de negócio — é o que faz o RLS funcionar.
+      Colocar desde o início evita migração depois. <code>id</code> é sempre <code>uuid</code> (não 1, 2, 3):
+      evita adivinhar <code>/clientes/48</code> e esconder quantos clientes você tem.
+    </div>
+  </section>
+
+  <!-- ============ 3 PERGUNTAS ============ -->
+  <section class="tab-panel" id="perguntas" role="tabpanel">
+    <h2>As três perguntas do E01, agora com resposta boa</h2>
+    <p class="sub">Primeira vez no curso em que "onde o dado fica, quem acessa, por quanto tempo" tem resposta concreta.</p>
+    <table>
+      <tr><th>Pergunta</th><th>Resposta no Supabase</th></tr>
+      <tr><td><b>Onde o dado fica</b></td><td>Região escolhida na criação do projeto; São Paulo disponível. <b>Escolher e registrar qual foi.</b></td></tr>
+      <tr><td><b>Quem acessa</b></td><td>A conta do consultor, autenticada. Com RLS, só as próprias linhas. Sem RLS, quem tiver a chave vê tudo.</td></tr>
+      <tr><td><b>Por quanto tempo</b></td><td>Retenção definida pelo dono — e o art. 23 da CVM 19 exige <b>mínimo de 5 anos</b> para documentação que fundamentou recomendação.</td></tr>
+    </table>
+    <div class="callout">
+      A terceira linha surpreende: a régua aqui não é "apague o quanto antes", é
+      <b>guarde pelo prazo regulatório, com acesso controlado</b>. Privacidade e obrigação de guarda
+      convivem — e o RLS é o que permite as duas coisas.
+    </div>
+  </section>
+
+  <!-- ============ AUTENTICAÇÃO ============ -->
+  <section class="tab-panel" id="auth" role="tabpanel">
+    <h2>Autenticação × Autorização</h2>
+    <p>A turma vai misturar os dois. São perguntas diferentes:</p>
+    <table>
+      <tr><th></th><th>Pergunta que responde</th><th>No Supabase</th></tr>
+      <tr><td><b>Autenticação</b></td><td><i>Quem é você?</i></td><td>Login por e-mail, devolve um <code>uid</code></td></tr>
+      <tr><td><b>Autorização</b></td><td><i>O que você pode ver e fazer?</i></td><td>Políticas de RLS</td></tr>
+    </table>
+    <div class="callout danger">
+      <b>Login sem RLS é porta com crachá e sem tranca:</b> o sistema sabe quem você é e deixa você
+      ver tudo de todo mundo. É o estado padrão de um banco novo — e é o erro que expõe dado de
+      cliente sem ninguém invadir nada.
+    </div>
+    <p class="sub">Autenticação não é anti-roubo. É rastro: quem entrou, quando, de onde. A tranca é o RLS.</p>
+  </section>
+
+  <!-- ============ RLS ============ -->
+  <section class="tab-panel" id="rls" role="tabpanel">
+    <h2>RLS: de planilha compartilhada a cofre pessoal</h2>
+    <p>Sem RLS, o Supabase é uma planilha compartilhada com senha. Com RLS, é um cofre pessoal.
+       A regra padrão do curso: <b>o dono do dado é quem inseriu</b> (<code>owner_id = seu uid</code>).</p>
+
+    <div class="cols">
+      <div class="vault bad">
+        <h3>🔓 Sem RLS</h3>
+        <p class="sub" style="margin:0">Você vê as linhas de todo mundo.</p>
+        <div class="rowset">
+          <div class="r mine">cliente: Acme · owner: você</div>
+          <div class="r">cliente: Beta · owner: colega</div>
+          <div class="r">cliente: Gama · owner: colega</div>
+        </div>
+      </div>
+      <div class="vault good">
+        <h3>🔒 Com RLS</h3>
+        <p class="sub" style="margin:0">Você só vê o que é seu. O resto nem existe para você.</p>
+        <div class="rowset">
+          <div class="r mine">cliente: Acme · owner: você</div>
+          <div class="r hidden">cliente: Beta · owner: colega</div>
+          <div class="r hidden">cliente: Gama · owner: colega</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="term-box">
+      <div class="term-bar"><i></i><i></i><i></i><span>a política, em uma frase</span></div>
+      <div class="term-body">
+        <div><span class="c">-- "Você só pode ler ou escrever linhas onde owner_id = seu uid"</span></div>
+        <div><span class="k">create policy</span> <span class="s">"dono do dado"</span> <span class="k">on</span> cliente</div>
+        <div>&nbsp;&nbsp;<span class="k">using</span> ( owner_id = <span class="s">auth.uid()</span> );</div>
+      </div>
+    </div>
+
+    <h3>Por que RLS e não "filtrar na tela"?</h3>
+    <p>Filtro na aplicação é <b>uma promessa do código</b>; o RLS é <b>uma regra do banco</b>. Três cenários em que a promessa falha e a regra segura:</p>
+    <table>
+      <tr><th>Cenário</th><th>Sem RLS</th></tr>
+      <tr><td>O agente escreve uma consulta nova e esquece o filtro (E07)</td><td>Vaza tudo</td></tr>
+      <tr><td>Alguém usa a chave da API direto, sem passar pela tela</td><td>Vaza tudo</td></tr>
+      <tr><td>Um fluxo do n8n (E08) grava contornando a aplicação</td><td>Vaza tudo</td></tr>
+    </table>
+    <div class="callout">
+      Com RLS, esquecer o filtro retorna <b>zero linhas</b> em vez de retornar tudo. A falha passa a ser
+      <b>visível e inofensiva</b>, em vez de silenciosa e grave. É esse o argumento para 11 minutos de RLS
+      numa turma que quer ver tela: sem isso, o esquecimento de uma linha de código vira incidente de LGPD.
+    </div>
+
+    <div class="callout warn">
+      <b>O teste que não pode ser cortado:</b> com dois usuários diferentes, cada um só enxerga o próprio dado.
+      Se o RLS não passar no teste, <b>dado real não entra até resolver</b>. Esse é o critério de zero incidentes do programa.
+    </div>
+  </section>
+
+  <footer>
+    Mont Academy · Workshop Claude · Encontro 05 — material de apoio projetável.
+    Prompts de criação no Supabase: ver <code>materiais/encontro-05/prompts/</code>.
+  </footer>
+</div>
+
+<script>
+  document.querySelectorAll('.tab-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      document.querySelectorAll('.tab-btn').forEach(function (b) { b.classList.remove('active'); });
+      document.querySelectorAll('.tab-panel').forEach(function (p) { p.classList.remove('active'); });
+      btn.classList.add('active');
+      document.getElementById(btn.dataset.tab).classList.add('active');
+    });
+  });
+</script>
+</body>
+</html>
