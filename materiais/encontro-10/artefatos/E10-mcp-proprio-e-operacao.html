@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>E10 — MCP Próprio e Operação</title>
+<style>
+  :root { --bg:#0f1115; --panel:#181b22; --panel-2:#1f232c; --term:#0b0d12; --ink:#e8eaed; --muted:#9aa3b2;
+    --accent:#6ea8fe; --accent-2:#7ee787; --warn:#f0b429; --danger:#ff7a7a; --border:#2a2f3a; }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg); color:var(--ink); line-height:1.55; padding:40px 24px 80px; }
+  .wrap { max-width:1040px; margin:0 auto; }
+  .eyebrow { color:var(--accent); font-weight:700; letter-spacing:.08em; text-transform:uppercase; font-size:13px; }
+  h1 { font-size:32px; margin:6px 0 8px; } .sub { color:var(--muted); font-size:17px; }
+  h2 { font-size:22px; margin:34px 0 14px; padding-bottom:8px; border-bottom:1px solid var(--border); }
+  h3 { font-size:16px; margin:20px 0 8px; }
+  code { font-family:"SF Mono",Menlo,Consolas,monospace; }
+  p code,li code,td code { background:var(--panel-2); padding:2px 6px; border-radius:4px; color:var(--accent-2); font-size:13.5px; }
+  .tabs { display:flex; gap:6px; margin:22px 0 10px; border-bottom:1px solid var(--border); flex-wrap:wrap; }
+  .tab-btn { background:transparent; border:none; color:var(--muted); font:inherit; font-weight:600; font-size:15px;
+    padding:12px 16px; cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-1px; }
+  .tab-btn:hover { color:var(--ink);} .tab-btn.active { color:var(--accent); border-bottom-color:var(--accent); }
+  .tab-panel { display:none; animation:fadeIn .25s ease; } .tab-panel.active { display:block; }
+  @keyframes fadeIn { from{opacity:0;} to{opacity:1;} }
+  .card { background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:18px 20px; margin:12px 0; }
+  .callout { background:var(--panel); border-left:4px solid var(--accent); border-radius:8px; padding:16px 20px; margin:16px 0; }
+  .callout.warn{border-left-color:var(--warn);} .callout.danger{border-left-color:var(--danger);}
+  .callout b{color:var(--accent);} .callout.warn b{color:var(--warn);} .callout.danger b{color:var(--danger);}
+  table { width:100%; border-collapse:collapse; margin:14px 0; background:var(--panel); border-radius:8px; overflow:hidden; }
+  th,td { padding:11px 13px; text-align:left; border-bottom:1px solid var(--border); vertical-align:top; font-size:14px; }
+  th { background:var(--panel-2); font-size:12.5px; letter-spacing:.03em; color:var(--muted); text-transform:uppercase; }
+  td code { color:var(--accent-2); }
+  .term-box { background:var(--term); border:1px solid var(--border); border-radius:10px; overflow:hidden; margin:12px 0; }
+  .term-bar { background:var(--panel-2); padding:7px 12px; display:flex; gap:6px; align-items:center; border-bottom:1px solid var(--border); }
+  .term-bar i { width:11px;height:11px;border-radius:50%; } .term-bar i:nth-child(1){background:#ff5f56;} .term-bar i:nth-child(2){background:#ffbd2e;} .term-bar i:nth-child(3){background:#27c93f;}
+  .term-bar span { margin-left:8px; color:var(--muted); font-size:12px; font-family:"SF Mono",monospace; }
+  .term-body { padding:14px 16px; font-family:"SF Mono",monospace; font-size:13px; white-space:pre-wrap; }
+  .term-body .c{color:var(--muted);} .term-body .bad{color:var(--danger);} .term-body .ok{color:var(--accent-2);}
+  .pipe { display:flex; align-items:center; gap:0; flex-wrap:wrap; margin:16px 0; }
+  .st { flex:1 1 0; min-width:120px; background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:14px; text-align:center; }
+  .st .t { font-weight:700; } .st .d { color:var(--muted); font-size:12.5px; margin-top:4px; }
+  .pipe .ar { color:var(--muted); font-size:20px; padding:0 4px; }
+  @media(max-width:760px){ .pipe{flex-direction:column;} .pipe .ar{transform:rotate(90deg);} }
+  .note { font-size:12.5px; color:var(--muted); background:var(--panel-2); border:1px dashed var(--border); border-radius:8px; padding:10px 14px; margin:14px 0; }
+  footer { margin-top:48px; color:var(--muted); font-size:13px; border-top:1px solid var(--border); padding-top:16px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="eyebrow">Encontro 10 · MCP Próprio e Operação</div>
+  <h1>Segredos, backup testado e suas ferramentas expostas ao agente</h1>
+  <p class="sub">Tornar o sistema operável: segredo nunca no repositório, backup que você já restaurou, monitoramento no ar — e um MCP que expõe suas ferramentas. Uma ferramenta bem exposta poupa cinco prompts.</p>
+
+  <div class="note">⚠️ A nota-fonte deste encontro não estava disponível nas anotações no momento da geração. Este artefato foi reconstruído a partir das referências ao E10 nos demais encontros (E04 <code>.gitignore</code>, E05 backup/restauração, E09 chave no servidor, E11 token do MCP e segredos). Revise/ajuste quando a nota original voltar.</p>
+
+  <nav class="tabs" role="tablist">
+    <button class="tab-btn active" data-tab="segredos">Segredos</button>
+    <button class="tab-btn" data-tab="backup">Backup testado</button>
+    <button class="tab-btn" data-tab="monitor">Monitoramento</button>
+    <button class="tab-btn" data-tab="mcp">MCP próprio</button>
+  </nav>
+
+  <section class="tab-panel active" id="segredos" role="tabpanel">
+    <h2>Segredo nunca vai no repositório</h2>
+    <p>Chave de API, token, senha de banco — são <b>segredos</b>. O lugar deles é um arquivo <code>.env</code> (local) e as configurações da plataforma (produção), <b>nunca</b> o git.</p>
+    <table>
+      <tr><th>Onde o segredo mora</th><th>Como protege</th></tr>
+      <tr><td>Arquivo <code>.env</code> (local)</td><td>Listado no <code>.gitignore</code> — o git o ignora e ele nunca é commitado</td></tr>
+      <tr><td>Configurações da plataforma (produção)</td><td>Cadastrado à mão, uma vez (E11)</td></tr>
+      <tr><td>No código</td><td class="" style="color:var(--danger)">Nunca. Chave no código = chave vazada</td></tr>
+    </table>
+    <div class="term-box">
+      <div class="term-bar"><i></i><i></i><i></i><span>.gitignore</span></div>
+      <div class="term-body"><span class="c"># segredos nunca sobem</span>
+.env
+.env.local
+*.pem
+<span class="c"># dependências e build</span>
+node_modules/
+dist/</div>
+    </div>
+    <div class="callout danger">
+      <b>Chave pública (anon) ≠ chave secreta (service role).</b> A anon pode ir ao navegador — é o RLS do E05 que a torna segura.
+      A service role ignora RLS e <b>nunca</b> vai ao navegador nem ao repositório. A chamada de IA e as chaves ficam no <b>servidor</b>, não no navegador (E09).
+    </div>
+    <div class="callout warn">
+      <b>Se vazou, rotacione.</b> Chave que foi parar num commit (mesmo apagado depois) está comprometida — gere uma nova e invalide a antiga. Apagar o commit não basta: o histórico do git guarda tudo.
+    </div>
+  </section>
+
+  <section class="tab-panel" id="backup" role="tabpanel">
+    <h2>Backup só é backup depois que você restaurou</h2>
+    <p>O Supabase tem backup automático. Mas <b>backup que nunca foi restaurado é uma promessa, não uma garantia</b> — você só sabe que funciona no dia em que testa.</p>
+    <div class="pipe">
+      <div class="st"><div class="t">Backup existe</div><div class="d">automático no Supabase</div></div>
+      <div class="ar">→</div>
+      <div class="st"><div class="t">Restaurar num teste</div><div class="d">num projeto separado</div></div>
+      <div class="ar">→</div>
+      <div class="st"><div class="t">Conferir</div><div class="d">os dados vieram inteiros?</div></div>
+      <div class="ar">→</div>
+      <div class="st"><div class="t">Agora é garantia</div></div>
+    </div>
+    <div class="callout">
+      <b>O que definir no E10:</b> a retenção (por quanto tempo guardar — lembre do art. 23 CVM 19, mínimo 5 anos para o que fundamentou recomendação) e a frequência com que você <b>testa a restauração</b>, não só que ela existe.
+    </div>
+    <div class="callout warn"><b>Teste destrutivo não se faz no banco de produção</b> (E11). Para testar restauração ou qualquer coisa que apaga, use um projeto Supabase separado.</div>
+  </section>
+
+  <section class="tab-panel" id="monitor" role="tabpanel">
+    <h2>Monitoramento: saber que quebrou antes do cliente</h2>
+    <p>Sistema que roda sozinho (os fluxos do E06/E08/E09) precisa <b>avisar quando falha</b> — senão você descobre pelo cliente, que é o pior momento.</p>
+    <table>
+      <tr><th>Pergunta de operação</th><th>O que responde</th></tr>
+      <tr><td>O fluxo agendado rodou hoje?</td><td>Registro de execução (quantas linhas, quando) — E06</td></tr>
+      <tr><td>Algum nó falhou?</td><td>Tratamento de erro que manda e-mail, nunca falha em silêncio</td></tr>
+      <tr><td>A API externa está no ar?</td><td>Cache + indicação de "dado de ontem" — E07</td></tr>
+      <tr><td>O site está de pé?</td><td>Monitor de disponibilidade (uptime)</td></tr>
+    </table>
+    <div class="callout"><b>A régua:</b> toda automação que roda sem plateia precisa de um aviso quando falha. Alerta de operação segue os mesmos três critérios do E07 — nasce com filtro apertado, só dispara no que exige ação.</div>
+  </section>
+
+  <section class="tab-panel" id="mcp" role="tabpanel">
+    <h2>MCP: expor as suas ferramentas ao agente</h2>
+    <p>Até agora o agente trabalhava sobre arquivos. O <b>MCP</b> (Model Context Protocol) deixa você <b>expor ferramentas</b> — "buscar cliente", "criar interação", "rodar o importador" — que o agente chama direto, sem você explicar o passo a passo toda vez.</p>
+    <div class="callout"><b>Uma ferramenta bem exposta poupa cinco prompts.</b> Em vez de descrever "abra o banco, filtre por nome, monte o SQL…", você expõe <code>buscar_cliente(nome)</code> uma vez e o agente usa sempre.</div>
+    <table>
+      <tr><th>Sem MCP</th><th>Com MCP</th></tr>
+      <tr><td>Você explica o processo a cada conversa</td><td>A ferramenta existe e o agente a chama</td></tr>
+      <tr><td>O agente remonta o SQL toda vez (e pode errar)</td><td>A ferramenta faz sempre do jeito certo</td></tr>
+      <tr><td>Cada passo é um prompt</td><td>Um nome de ferramenta resolve</td></tr>
+    </table>
+    <h3>O MCP da Mont</h3>
+    <p>Além do seu MCP próprio, a Mont expõe ferramentas suas (catálogo, Solidez Bancária, Wealth Plan). Conectar o MCP da Mont dá ao seu agente acesso às ferramentas da casa — o mesmo princípio, outra fonte.</p>
+    <div class="callout warn">
+      <b>A ferramenta herda as regras, não as dispensa.</b> Um MCP que escreve no banco respeita o RLS do E05 e a revisão do E09. Expor ferramenta não é abrir atalho para a IA decidir — é dar à IA um jeito seguro de fazer o que você já aprovaria.
+    </div>
+  </section>
+
+  <footer>Mont Academy · Workshop Claude · Encontro 10. Prompts em <code>prompts/</code>.</footer>
+</div>
+<script>
+  document.querySelectorAll('.tab-btn').forEach(function(btn){ btn.addEventListener('click',function(){
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+    btn.classList.add('active'); document.getElementById(btn.dataset.tab).classList.add('active');
+  });});
+</script>
+</body>
+</html>
