@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>E09 — Revisão Humana e Reativação de Rede</title>
+<style>
+  :root { --bg:#0f1115; --panel:#181b22; --panel-2:#1f232c; --term:#0b0d12; --ink:#e8eaed; --muted:#9aa3b2;
+    --accent:#6ea8fe; --accent-2:#7ee787; --warn:#f0b429; --danger:#ff7a7a; --border:#2a2f3a; }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg); color:var(--ink); line-height:1.55; padding:40px 24px 80px; }
+  .wrap { max-width:1040px; margin:0 auto; }
+  .eyebrow { color:var(--accent); font-weight:700; letter-spacing:.08em; text-transform:uppercase; font-size:13px; }
+  h1 { font-size:32px; margin:6px 0 8px; } .sub { color:var(--muted); font-size:17px; }
+  h2 { font-size:22px; margin:34px 0 14px; padding-bottom:8px; border-bottom:1px solid var(--border); }
+  h3 { font-size:16px; margin:20px 0 8px; }
+  code { font-family:"SF Mono",Menlo,Consolas,monospace; }
+  p code,li code,td code { background:var(--panel-2); padding:2px 6px; border-radius:4px; color:var(--accent-2); font-size:13.5px; }
+  .tabs { display:flex; gap:6px; margin:22px 0 10px; border-bottom:1px solid var(--border); flex-wrap:wrap; }
+  .tab-btn { background:transparent; border:none; color:var(--muted); font:inherit; font-weight:600; font-size:15px;
+    padding:12px 16px; cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-1px; }
+  .tab-btn:hover { color:var(--ink);} .tab-btn.active { color:var(--accent); border-bottom-color:var(--accent); }
+  .tab-panel { display:none; animation:fadeIn .25s ease; } .tab-panel.active { display:block; }
+  @keyframes fadeIn { from{opacity:0;} to{opacity:1;} }
+  .card { background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:18px 20px; margin:12px 0; }
+  .callout { background:var(--panel); border-left:4px solid var(--accent); border-radius:8px; padding:16px 20px; margin:16px 0; }
+  .callout.warn{border-left-color:var(--warn);} .callout.danger{border-left-color:var(--danger);}
+  .callout b{color:var(--accent);} .callout.warn b{color:var(--warn);} .callout.danger b{color:var(--danger);}
+  table { width:100%; border-collapse:collapse; margin:14px 0; background:var(--panel); border-radius:8px; overflow:hidden; }
+  th,td { padding:11px 13px; text-align:left; border-bottom:1px solid var(--border); vertical-align:top; font-size:14px; }
+  th { background:var(--panel-2); font-size:12.5px; letter-spacing:.03em; color:var(--muted); text-transform:uppercase; }
+  td code { color:var(--accent-2); }
+  .two { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin:14px 0; }
+  .col { border-radius:10px; padding:16px; border:1px solid var(--border); }
+  .col.crit { background:rgba(255,122,122,.06); border-left:4px solid var(--danger); }
+  .col.ok { background:rgba(126,231,135,.06); border-left:4px solid var(--accent-2); }
+  .col h3 { margin:0 0 8px; } .col.crit h3 { color:var(--danger);} .col.ok h3{color:var(--accent-2);}
+  .col ul { margin:0; padding-left:18px; } .col li { margin:5px 0; font-size:14px; }
+  .flow { display:flex; flex-direction:column; gap:0; margin:16px 0; max-width:540px; }
+  .fn { background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:11px 15px; }
+  .fn .t { font-weight:700; } .fn .d { color:var(--muted); font-size:13px; }
+  .fn.stop { background:#12100E; border-color:var(--warn); border-left:4px solid var(--warn); } .fn.stop .t { color:var(--warn); }
+  .fn.ctx { border-left:4px solid var(--accent-2); } .fn.ctx .t { color:var(--accent-2); }
+  .fdown { text-align:center; color:var(--muted); font-size:18px; margin:4px 0; }
+  .yes{color:var(--accent-2);font-weight:700;} .no{color:var(--danger);font-weight:700;}
+  footer { margin-top:48px; color:var(--muted); font-size:13px; border-top:1px solid var(--border); padding-top:16px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="eyebrow">Encontro 09 · Revisão Humana e Reativação de Rede</div>
+  <h1>Automação auditável: revisar o que é crítico, registrar tudo</h1>
+  <p class="sub">Fechar o fluxo do E08 com revisão humana só onde importa, dar origem a cada registro, e reativar relacionamento adormecido com o mesmo padrão.</p>
+
+  <nav class="tabs" role="tablist">
+    <button class="tab-btn active" data-tab="revisao">Revisão humana</button>
+    <button class="tab-btn" data-tab="origem">Registro de origem</button>
+    <button class="tab-btn" data-tab="reativacao">Reativação de rede</button>
+    <button class="tab-btn" data-tab="ia">IA na aplicação</button>
+  </nav>
+
+  <section class="tab-panel active" id="revisao" role="tabpanel">
+    <h2>Revisar o que é crítico — não revisar tudo</h2>
+    <p>Parar o fluxo para todo registro transforma governança em burocracia, e burocracia é a primeira coisa que o aluno abandona. O critério: <b>se sair errado, alguém de fora percebe, ou você assume um compromisso que não fez?</b></p>
+    <div class="two">
+      <div class="col crit">
+        <h3>⛔ Crítico — para e espera</h3>
+        <ul>
+          <li>Qualquer coisa que vai ao cliente</li>
+          <li>Tarefa com prazo que vira compromisso seu</li>
+          <li>O que embasa recomendação / adequação de produto</li>
+          <li>Edição ou exclusão de registro histórico</li>
+        </ul>
+      </div>
+      <div class="col ok">
+        <h3>✓ Não crítico — salva direto</h3>
+        <ul>
+          <li>Resumo interno da reunião (3 bullets)</li>
+          <li>Classificação por assunto</li>
+          <li>Sugestão de próximo passo que só você vê</li>
+        </ul>
+      </div>
+    </div>
+    <div class="callout danger">
+      Duas regras de faixa preta: <b>nada gerado por IA vai ao cliente sem revisão humana</b> (o 1% custa cliente)
+      e <b>todo registro criado por fluxo carrega origem</b> (automático).
+    </div>
+    <div class="callout warn">
+      <b>Aprovação automática por tempo é a armadilha.</b> "Se ninguém aprovar em 24h, manda" destrói a garantia inteira —
+      é a ficção de que o sistema decidiu (art. 17 CVM 19: o sistema não mitiga a sua responsabilidade). Se o volume crítico é
+      grande demais, o problema é o volume ou o critério largo demais, não a revisão.
+    </div>
+    <h3>Checklist de 30s por item crítico (as 5 conferências do E03)</h3>
+    <div class="card">1. O cliente está certo? · 2. Alguma tarefa foi inventada? · 3. Algum compromisso real ficou fora? · 4. O prazo faz sentido? · 5. O tom é seu?</div>
+    <p class="sub"><b>Correção alimenta a regra:</b> toda tarefa mal-extraída que você corrige vira linha no <code>CLAUDE.md</code> — o laço do E03 fechando.</p>
+  </section>
+
+  <section class="tab-panel" id="origem" role="tabpanel">
+    <h2>Registro de origem e rastreabilidade</h2>
+    <p>A coluna <code>origem</code> guarda qual fluxo criou o registro e quando. Padrão: <code>e09-transcricao-2026-11-26</code>.</p>
+    <table>
+      <tr><th>Uso</th><th>Pergunta que responde</th></tr>
+      <tr><td>Auditoria interna</td><td>"Este resumo foi escrito por mim ou gerado?"</td></tr>
+      <tr><td>Depuração</td><td>"Por que apareceram 40 tarefas na terça?"</td></tr>
+      <tr><td><b>Regulatório</b></td><td>Art. 23 CVM 19 — rastrear o que fundamentou a recomendação</td></tr>
+    </table>
+    <div class="callout">
+      A marcação "gerado com apoio de IA" é <b>rastro para você e para a Mont, não informação para o cliente</b>.
+      Não vai na mensagem enviada; vai na linha do banco. Sem origem, você tem um sistema cheio de registros órfãos.
+    </div>
+  </section>
+
+  <section class="tab-panel" id="reativacao" role="tabpanel">
+    <h2>Reativação de rede — mesmo padrão, outra entrada</h2>
+    <div class="flow">
+      <div class="fn"><div class="t">⚡ Gatilho</div><div class="d">domingo, 20h</div></div>
+      <div class="fdown">↓</div>
+      <div class="fn"><div class="t">Buscar clientes sem interação há +60 dias</div></div>
+      <div class="fdown">↓</div>
+      <div class="fn ctx"><div class="t">Montar contexto (a etapa que separa de spam)</div><div class="d">última interação + posição atual + padrão de marca</div></div>
+      <div class="fdown">↓</div>
+      <div class="fn"><div class="t">Gerar sugestão de mensagem</div></div>
+      <div class="fdown">↓</div>
+      <div class="fn stop"><div class="t">PARA — você lê antes de enviar</div><div class="d">mensagem a cliente é sempre crítica</div></div>
+      <div class="fdown">↓</div>
+      <div class="fn"><div class="t">Enviar + registrar como interação (com origem)</div><div class="d">o cliente sai da lista dos 60 dias — o fluxo se auto-alimenta</div></div>
+    </div>
+    <div class="callout danger">
+      <b>A etapa que separa reativação de spam é o contexto.</b> Mensagem gerada sem a última interação vira
+      "oi, tudo bem?" em escala — e o cliente percebe.
+    </div>
+    <div class="callout warn">
+      <b>O critério honesto:</b> se você não conseguiria explicar por que está mandando esta mensagem para esta pessoa hoje,
+      o fluxo não devia mandar. Mitigações: varie o horário de envio, não use o mesmo gancho para todos.
+    </div>
+    <p class="sub">Só funciona porque existe linha do tempo no CRM (E05). Sem histórico, não há contexto; sem contexto, é disparo em massa. A ordem dos encontros não é arbitrária.</p>
+  </section>
+
+  <section class="tab-panel" id="ia" role="tabpanel">
+    <h2>IA dentro da aplicação: onde entra e onde não</h2>
+    <table>
+      <tr><th>Onde</th><th>Entra?</th><th>Por quê</th></tr>
+      <tr><td>Resumir interações em texto corrido</td><td class="yes">Sim</td><td>Transformação do que você já tem</td></tr>
+      <tr><td>Sugerir próximo passo pelo histórico</td><td class="yes">Sim*</td><td>Como sugestão — você decide</td></tr>
+      <tr><td>Redigir rascunho de mensagem</td><td class="yes">Sim*</td><td>Com revisão (blocos 1 e 3)</td></tr>
+      <tr><td>Classificar interação por assunto</td><td class="yes">Sim</td><td>Tarefa mecânica, modelo leve</td></tr>
+      <tr><td>Calcular indicador do dashboard</td><td class="no">Não</td><td>Cálculo é do banco (E06/E07)</td></tr>
+      <tr><td>Decidir adequação de produto</td><td class="no">Não</td><td>Decisão sua, responsabilidade sua</td></tr>
+      <tr><td>Enviar algo ao cliente sozinha</td><td class="no">Não</td><td>Bloco 1</td></tr>
+      <tr><td>Apagar / alterar registro histórico</td><td class="no">Não</td><td>Art. 23: guarda de 5 anos</td></tr>
+    </table>
+    <div class="callout"><b>A regra que resume tudo:</b> <span style="color:var(--accent-2)">IA transforma e sugere; o banco calcula; você decide.</span> Vale escrever no <code>CLAUDE.md</code> — governa qualquer funcionalidade nova que você pedir depois do curso.</div>
+    <div class="callout warn">
+      <b>Onde colocar a chamada de IA:</b> no servidor da aplicação, <b>nunca no navegador</b>. A chave ficaria exposta (E10),
+      e a régua/<code>CLAUDE.md</code> precisa ser aplicada de um lugar que o usuário não contorna.
+    </div>
+  </section>
+
+  <footer>Mont Academy · Workshop Claude · Encontro 09. Prompts em <code>prompts/</code>.</footer>
+</div>
+<script>
+  document.querySelectorAll('.tab-btn').forEach(function(btn){ btn.addEventListener('click',function(){
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+    btn.classList.add('active'); document.getElementById(btn.dataset.tab).classList.add('active');
+  });});
+</script>
+</body>
+</html>
