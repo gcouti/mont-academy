@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>E01 — Fundamentos, Modelo Mental e Segurança</title>
+<style>
+  :root { --bg:#0f1115; --panel:#181b22; --panel-2:#1f232c; --term:#0b0d12; --ink:#e8eaed; --muted:#9aa3b2;
+    --accent:#6ea8fe; --accent-2:#7ee787; --warn:#f0b429; --danger:#ff7a7a; --border:#2a2f3a; }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg); color:var(--ink); line-height:1.55; padding:40px 24px 80px; }
+  .wrap { max-width:1040px; margin:0 auto; }
+  .eyebrow { color:var(--accent); font-weight:700; letter-spacing:.08em; text-transform:uppercase; font-size:13px; }
+  h1 { font-size:32px; margin:6px 0 8px; } .sub { color:var(--muted); font-size:17px; }
+  h2 { font-size:22px; margin:34px 0 14px; padding-bottom:8px; border-bottom:1px solid var(--border); }
+  h3 { font-size:16px; margin:20px 0 8px; }
+  code { font-family:"SF Mono",Menlo,Consolas,monospace; }
+  p code,li code,td code { background:var(--panel-2); padding:2px 6px; border-radius:4px; color:var(--accent-2); font-size:13.5px; }
+  .tabs { display:flex; gap:6px; margin:22px 0 10px; border-bottom:1px solid var(--border); flex-wrap:wrap; }
+  .tab-btn { background:transparent; border:none; color:var(--muted); font:inherit; font-weight:600; font-size:15px;
+    padding:12px 16px; cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-1px; }
+  .tab-btn:hover { color:var(--ink);} .tab-btn.active { color:var(--accent); border-bottom-color:var(--accent); }
+  .tab-panel { display:none; animation:fadeIn .25s ease; } .tab-panel.active { display:block; }
+  @keyframes fadeIn { from{opacity:0;} to{opacity:1;} }
+  .card { background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:16px 18px; margin:10px 0; }
+  .callout { background:var(--panel); border-left:4px solid var(--accent); border-radius:8px; padding:16px 20px; margin:16px 0; }
+  .callout.warn{border-left-color:var(--warn);} .callout.danger{border-left-color:var(--danger);} .callout.ok{border-left-color:var(--accent-2);}
+  .callout b{color:var(--accent);} .callout.warn b{color:var(--warn);} .callout.danger b{color:var(--danger);} .callout.ok b{color:var(--accent-2);}
+  table { width:100%; border-collapse:collapse; margin:14px 0; background:var(--panel); border-radius:8px; overflow:hidden; }
+  th,td { padding:11px 13px; text-align:left; border-bottom:1px solid var(--border); vertical-align:top; font-size:14px; }
+  th { background:var(--panel-2); font-size:12.5px; letter-spacing:.03em; color:var(--muted); text-transform:uppercase; }
+  td code { color:var(--accent-2); }
+  .princ { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:14px 0; }
+  .pc { background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:14px; }
+  .pc .n { color:var(--accent); font-weight:800; } .pc .t { font-weight:700; margin:2px 0; } .pc .d { color:var(--muted); font-size:13px; }
+  @media(max-width:760px){ .princ{grid-template-columns:1fr;} }
+  .two { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin:14px 0; }
+  .col { border-radius:10px; padding:16px; border:1px solid var(--border); }
+  .col.busca { border-left:4px solid var(--muted); } .col.pred { border-left:4px solid var(--accent-2); }
+  .col h3 { margin:0 0 6px; } .col.pred h3 { color:var(--accent-2); }
+  .col ol { margin:6px 0 0; padding-left:18px; font-size:13.5px; } .col li { margin:4px 0; }
+  @media(max-width:760px){ .two{grid-template-columns:1fr;} }
+  .anon { border-left:4px solid var(--border); padding:12px 16px; margin:10px 0; background:var(--panel); border-radius:8px; font-size:14px; }
+  .anon.orig { border-left-color:var(--danger);} .anon.pseudo { border-left-color:var(--warn);} .anon.ok { border-left-color:var(--accent-2);}
+  .anon .lbl { font-size:12px; text-transform:uppercase; letter-spacing:.05em; font-weight:700; }
+  .anon.orig .lbl{color:var(--danger);} .anon.pseudo .lbl{color:var(--warn);} .anon.ok .lbl{color:var(--accent-2);}
+  .tree .q { background:var(--panel); border:1px solid var(--border); border-radius:8px; padding:10px 14px; margin:6px 0; }
+  .tree .q b { color:var(--accent); }
+  .tree .r { font-weight:700; } .tree .r.no{color:var(--danger);} .tree .r.yes{color:var(--accent-2);}
+  footer { margin-top:48px; color:var(--muted); font-size:13px; border-top:1px solid var(--border); padding-top:16px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="eyebrow">Encontro 01 · Fundamentos, Modelo Mental e Segurança</div>
+  <h1>Como ela funciona — logo, o que não pode entrar</h1>
+  <p class="sub">Um modelo mental que prevê quando a ferramenta funciona e quando falha, e uma régua de dados simples o bastante para lembrar às 11 da noite, com pressa.</p>
+
+  <nav class="tabs" role="tablist">
+    <button class="tab-btn active" data-tab="principios">5 princípios</button>
+    <button class="tab-btn" data-tab="erros">Erros comuns</button>
+    <button class="tab-btn" data-tab="lgpd">Dado pessoal</button>
+    <button class="tab-btn" data-tab="regua">A régua</button>
+    <button class="tab-btn" data-tab="incidente">3 perguntas + incidente</button>
+  </nav>
+
+  <section class="tab-panel active" id="principios" role="tabpanel">
+    <h2>Como o LLM funciona — cinco princípios</h2>
+    <div class="princ">
+      <div class="pc"><span class="n">1</span><div class="t">Predição, não consulta</div><div class="d">Monta a continuação mais plausível. Explica por que inventa CNPJ e nunca diz "não sei".</div></div>
+      <div class="pc"><span class="n">2</span><div class="t">Contexto é memória de trabalho</div><div class="d">Só enxerga o que está na conversa. Colar o documento funciona melhor que descrevê-lo.</div></div>
+      <div class="pc"><span class="n">3</span><div class="t">Data de corte</div><div class="d">Não sabe o que houve depois do treino. Cotação, taxa e notícia vêm de fonte externa.</div></div>
+      <div class="pc"><span class="n">4</span><div class="t">Variação</div><div class="d">Mesma pergunta, respostas diferentes. Consistência exige instrução persistente (→ E03).</div></div>
+      <div class="pc"><span class="n">5</span><div class="t">Diferença entre modelos</div><div class="d">Tarefa mecânica aceita modelo leve; análise que vai ao cliente, não. O critério é a consequência do erro.</div></div>
+    </div>
+    <h3>A diferença que explica todo o resto</h3>
+    <div class="two">
+      <div class="col busca"><h3>O que a turma imagina: BUSCA</h3><ol>
+        <li>Procura num arquivo</li><li>Achou? devolve o que achou</li><li>Não achou? <b>diz que não achou</b></li></ol></div>
+      <div class="col pred"><h3>O que acontece: PREDIÇÃO</h3><ol>
+        <li>Olha o texto todo e pesa o que importa</li><li>Calcula a próxima palavra mais plausível</li>
+        <li>Repete, palavra a palavra</li><li>Devolve um texto plausível — <b>sempre</b></li></ol></div>
+    </div>
+    <div class="callout danger">O caminho da direita <b>nunca</b> tem a saída "não achou". É por isso que ela inventa: não existe estado de fracasso na predição. Plausível é o único objetivo.</div>
+  </section>
+
+  <section class="tab-panel" id="erros" role="tabpanel">
+    <h2>Quatro erros, e o que cada um prova</h2>
+    <table>
+      <tr><th>Caso</th><th>O princípio que prova</th></tr>
+      <tr><td><b>Rentabilidade inventada</b> — retorno de um fundo real com número específico e falso</td><td>Princípio 1: número plausível é o objetivo, não número certo</td></tr>
+      <tr><td><b>Citação inexistente</b> — artigo de resolução da CVM que não existe, com número convincente</td><td>Princípio 1 + 3: a forma é aprendida, o conteúdo é inventado</td></tr>
+      <tr><td><b>Erro de cálculo em série</b> — juros compostos com taxa ao longo de 10 anos</td><td>Princípio 1 em número: prevê dígitos plausíveis, não calcula</td></tr>
+      <tr><td><b>Data de corte</b> — pergunta recente, resposta confiante e desatualizada</td><td>Princípio 3</td></tr>
+    </table>
+    <div class="callout ok"><b>O antídoto (o mais importante):</b> as mesmas perguntas com <b>fonte anexada</b> e autorização explícita para dizer "não sei" produzem a resposta certa. Ceticismo sozinho não usa a ferramenta; o antídoto mostra o caminho seguro.</div>
+    <div class="callout warn"><b>Ela erra com o mesmo tom de quem acerta.</b> A confiança da resposta não é sinal de nada.</div>
+  </section>
+
+  <section class="tab-panel" id="lgpd" role="tabpanel">
+    <h2>O que a lei chama de dado pessoal</h2>
+    <p>Privacidade não é segredo. Segredo é "ninguém pode saber"; privacidade é <b>controle sobre quem sabe, o quê, para qual finalidade e por quanto tempo</b>. Usar para outra finalidade é quebra de privacidade mesmo sem vazamento.</p>
+    <table>
+      <tr><th>Categoria</th><th>O que é</th><th>Regra prática</th></tr>
+      <tr><td><b>Dado pessoal</b></td><td>Pessoa identificada ou identificável: nome, CPF, posição, patrimônio</td><td>Não entra em ferramenta não aprovada</td></tr>
+      <tr><td><b>Sensível</b></td><td>Lista <b>fechada</b>: saúde, religião, política, sindical, racial, sexual, genético, biométrico</td><td>Base legal mais restrita</td></tr>
+      <tr><td><b>Anonimizado</b></td><td>Titular não identificável por meios razoáveis</td><td><b>Deixa de ser</b> dado pessoal</td></tr>
+      <tr><td><b>Pseudonimizado</b></td><td>"Cliente 47" + planilha com a chave à parte</td><td><b>Continua sendo</b> dado pessoal</td></tr>
+    </table>
+    <div class="callout warn">
+      <b>O erro mais comum da sala:</b> achar que <b>patrimônio e posição são "sensíveis"</b>. Não são, na definição da LGPD (a lista é fechada e financeiro não está nela). São dado pessoal comum, cobertos pelo dever de sigilo. Quem chama tudo de "sensível" perde a régua quando aparecer um dado de fato sensível.
+    </div>
+    <div class="callout danger">
+      <b>Art. 17 da Resolução CVM 19:</b> usar sistemas automatizados <b>não mitiga a responsabilidade do consultor</b>. "Foi a IA que escreveu" não é defesa — e o código precisa estar disponível para inspeção da CVM. Por isso o E03 ensina regra em arquivo e o E08 exige registro de origem. <b>Você é o controlador</b> — quem responde perante a ANPD e o cliente.
+    </div>
+  </section>
+
+  <section class="tab-panel" id="regua" role="tabpanel">
+    <h2>Identificável — e a régua do que pode entrar</h2>
+    <p><b>Identificado</b> diz quem é ("João, CPF…"). <b>Identificável</b> não diz, mas permite chegar lá. A lei protege os dois, e a identificação vem da <b>combinação</b>:</p>
+    <div class="callout warn">Sem nome nem CPF: <i>"dentista · Maringá · R$ 2,3 mi sob gestão · resgatou em março para comprar imóvel"</i>. Quantos existem? Provavelmente um. <b>Não tem nome e identifica.</b></div>
+
+    <h3>Árvore de classificação</h3>
+    <div class="tree">
+      <div class="q"><b>Tem nome, CPF, e-mail, telefone, conta ou contrato?</b> → <span class="r no">PESSOAL (identificado) · não entra</span></div>
+      <div class="q"><b>A combinação dos campos restantes chega a uma pessoa só?</b> → <span class="r no">PESSOAL (identificável) · não entra</span></div>
+      <div class="q"><b>Existe chave que desfaz o que eu fiz?</b> → <span class="r no">PSEUDONIMIZADO (ainda é pessoal) · não entra</span></div>
+      <div class="q">Nenhum dos acima, de verdade → <span class="r yes">ANONIMIZADO · pode usar</span></div>
+    </div>
+    <div class="callout danger">"Não sei" cai no mesmo lugar que "sim". Em classificação de dado, <b>incerteza é resposta negativa.</b></div>
+
+    <div class="two">
+      <div class="col"><h3 style="color:var(--accent-2)">✓ Pode entrar</h3><ul style="margin:0;padding-left:18px;font-size:13.5px">
+        <li>Base fictícia da Mont</li><li>Dado público de mercado</li><li>Texto próprio sem identificação</li><li>Norma e regulamento</li><li>Pergunta conceitual sobre produto</li></ul></div>
+      <div class="col" style="border-left:4px solid var(--danger)"><h3 style="color:var(--danger)">✗ Não pode entrar</h3><ul style="margin:0;padding-left:18px;font-size:13.5px">
+        <li>Nome, CPF, e-mail, telefone</li><li>Posição, extrato, movimentação</li><li>Contrato, suitability, proposta</li><li>Print de conversa</li><li>Transcrição sem tratamento</li></ul></div>
+    </div>
+
+    <h3>Anonimizar em três níveis</h3>
+    <div class="anon orig"><span class="lbl">Original</span><br>"João Pereira, CPF 123.456.789-00, tem R$ 847.320,15 no fundo XP Multiestratégia e quer resgatar R$ 200 mil até 15/03."</div>
+    <div class="anon pseudo"><span class="lbl">Pseudonimizado (ainda é pessoal)</span><br>"Cliente 47 tem R$ 847.320,15 no fundo XP Multiestratégia e quer resgatar R$ 200 mil até 15/03." — se existe a tabela do 47, nada foi resolvido.</div>
+    <div class="anon ok"><span class="lbl">Anonimizado</span><br>"Cliente pessoa física tem entre R$ 800 mil e R$ 900 mil num fundo multimercado e quer resgatar cerca de 25% no próximo mês."</div>
+    <p class="sub">A versão do meio é a que a turma produziria achando que resolveu.</p>
+  </section>
+
+  <section class="tab-panel" id="incidente" role="tabpanel">
+    <h2>As três perguntas, antes de aprovar qualquer ferramenta</h2>
+    <div class="card">1 · <b>Onde o dado fica</b> — país, servidor, contrato. Plano gratuito ≠ corporativo, nem com a mesma marca.</div>
+    <div class="card">2 · <b>Quem pode acessar</b> — só você? a equipe do provedor? treina o modelo?</div>
+    <div class="card">3 · <b>Por quanto tempo</b> — existe retenção? dá para apagar de verdade?</div>
+    <p class="sub">Sem resposta às três, a ferramenta não está aprovada para dado de cliente. Elas voltam no E05 (banco) e no E10 (chave de API).</p>
+
+    <div class="callout ok"><b>Frase-síntese:</b> ela é boa em transformar informação que você deu, e ruim em fornecer informação que você não tem.</div>
+
+    <h2>Protocolo de incidente: Pare → Registre → Avise → Contenha</h2>
+    <table>
+      <tr><th>Passo</th><th>O que fazer</th></tr>
+      <tr><td>Pare</td><td>Não tente consertar colando mais coisa. Feche</td></tr>
+      <tr><td>Registre</td><td>O que foi exposto, quando, em qual ferramenta, de quantos titulares</td></tr>
+      <tr><td>Avise</td><td>Canal da Mont</td></tr>
+      <tr><td>Contenha</td><td>Apague o que der, revogue acesso, documente o que não deu</td></tr>
+    </table>
+    <div class="callout danger">
+      <b>Existe prazo legal, e é curto:</b> a LGPD (art. 48) e a Resolução CD/ANPD nº 15/2024 dão <b>3 dias úteis</b> do conhecimento para comunicar incidente com risco relevante. Por isso "registre" vem antes de "contenha" — sem registro você não comunica no prazo. Esconder um incidente transforma problema técnico em problema de conduta.
+    </div>
+  </section>
+
+  <footer>Mont Academy · Workshop Claude · Encontro 01. Régua de dados de 1 página em <code>artefatos/regua-de-dados.md</code>.</footer>
+</div>
+<script>
+  document.querySelectorAll('.tab-btn').forEach(function(btn){ btn.addEventListener('click',function(){
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+    btn.classList.add('active'); document.getElementById(btn.dataset.tab).classList.add('active');
+  });});
+</script>
+</body>
+</html>
