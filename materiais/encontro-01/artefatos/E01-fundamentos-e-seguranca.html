@@ -47,7 +47,7 @@
   .anon.orig .lbl{color:var(--danger);} .anon.pseudo .lbl{color:var(--warn);} .anon.ok .lbl{color:var(--accent-2);}
   .tree .q { background:var(--panel); border:1px solid var(--border); border-radius:8px; padding:10px 14px; margin:6px 0; }
   .tree .q b { color:var(--accent); }
-  .tree .r { font-weight:700; } .tree .r.no{color:var(--danger);} .tree .r.yes{color:var(--accent-2);}
+  .tree .r { font-weight:700; } .tree .r.no{color:var(--danger);} .tree .r.yes{color:var(--accent-2);} .tree .r.cuidado{color:var(--warn);}
   footer { margin-top:48px; color:var(--muted); font-size:13px; border-top:1px solid var(--border); padding-top:16px; }
 </style>
 </head>
@@ -125,8 +125,14 @@
     <div class="tree">
       <div class="q"><b>Tem nome, CPF, e-mail, telefone, conta ou contrato?</b> → <span class="r no">PESSOAL (identificado) · não entra</span></div>
       <div class="q"><b>A combinação dos campos restantes chega a uma pessoa só?</b> → <span class="r no">PESSOAL (identificável) · não entra</span></div>
-      <div class="q"><b>Existe chave que desfaz o que eu fiz?</b> → <span class="r no">PSEUDONIMIZADO (ainda é pessoal) · não entra</span></div>
+      <div class="q"><b>Existe chave que desfaz o que eu fiz?</b> → <span class="r cuidado">PSEUDONIMIZADO (ainda é pessoal) · entra com cuidados</span></div>
       <div class="q">Nenhum dos acima, de verdade → <span class="r yes">ANONIMIZADO · pode usar</span></div>
+    </div>
+    <div class="callout warn">
+      <b>Pseudonimizado entra com cuidados — não em qualquer lugar.</b> Como ainda é dado pessoal, só use quando:
+      a <b>chave que reidentifica fica fora da ferramenta</b> (nunca cole a tabela do "Cliente 47" junto);
+      a ferramenta é <b>aprovada pelas 3 perguntas</b> (onde fica, quem acessa, por quanto tempo);
+      o <b>acesso é restrito</b> e o dado segue tratado como pessoal (sigilo, RLS no E05). Na dúvida, prefira <b>anonimizar</b> — é o único caminho sem ressalva.
     </div>
     <div class="callout danger">"Não sei" cai no mesmo lugar que "sim". Em classificação de dado, <b>incerteza é resposta negativa.</b></div>
 
