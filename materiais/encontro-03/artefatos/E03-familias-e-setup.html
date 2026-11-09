@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>E03 — Diferenciar Ferramentas e Setup</title>
+<style>
+  :root { --bg:#0f1115; --panel:#181b22; --panel-2:#1f232c; --term:#0b0d12; --ink:#e8eaed; --muted:#9aa3b2;
+    --accent:#6ea8fe; --accent-2:#7ee787; --warn:#f0b429; --danger:#ff7a7a; --border:#2a2f3a; }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg); color:var(--ink); line-height:1.55; padding:40px 24px 80px; }
+  .wrap { max-width:1040px; margin:0 auto; }
+  .eyebrow { color:var(--accent); font-weight:700; letter-spacing:.08em; text-transform:uppercase; font-size:13px; }
+  h1 { font-size:32px; margin:6px 0 8px; } .sub { color:var(--muted); font-size:17px; }
+  h2 { font-size:22px; margin:34px 0 14px; padding-bottom:8px; border-bottom:1px solid var(--border); }
+  h3 { font-size:16px; margin:20px 0 8px; }
+  code { font-family:"SF Mono",Menlo,Consolas,monospace; }
+  p code,li code,td code { background:var(--panel-2); padding:2px 6px; border-radius:4px; color:var(--accent-2); font-size:13.5px; }
+  .tabs { display:flex; gap:6px; margin:22px 0 10px; border-bottom:1px solid var(--border); flex-wrap:wrap; }
+  .tab-btn { background:transparent; border:none; color:var(--muted); font:inherit; font-weight:600; font-size:15px;
+    padding:12px 16px; cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-1px; }
+  .tab-btn:hover { color:var(--ink);} .tab-btn.active { color:var(--accent); border-bottom-color:var(--accent); }
+  .tab-panel { display:none; animation:fadeIn .25s ease; } .tab-panel.active { display:block; }
+  @keyframes fadeIn { from{opacity:0;} to{opacity:1;} }
+  .card { background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:18px 20px; margin:12px 0; }
+  .callout { background:var(--panel); border-left:4px solid var(--accent); border-radius:8px; padding:16px 20px; margin:16px 0; }
+  .callout.warn{border-left-color:var(--warn);} .callout.danger{border-left-color:var(--danger);}
+  .callout b{color:var(--accent);} .callout.warn b{color:var(--warn);} .callout.danger b{color:var(--danger);}
+  table { width:100%; border-collapse:collapse; margin:14px 0; background:var(--panel); border-radius:8px; overflow:hidden; }
+  th,td { padding:11px 13px; text-align:left; border-bottom:1px solid var(--border); vertical-align:top; font-size:14px; }
+  th { background:var(--panel-2); font-size:12.5px; letter-spacing:.03em; color:var(--muted); text-transform:uppercase; }
+  td code { color:var(--accent-2); }
+  .fam { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin:14px 0; }
+  .fcard { background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:14px; }
+  .fcard .n { font-size:12px; color:var(--muted); } .fcard .t { font-weight:800; margin:4px 0; }
+  .fcard .d { color:var(--muted); font-size:12.5px; }
+  .fcard.f4 { border-left:3px solid var(--accent-2); } .fcard.f4 .t { color:var(--accent-2); }
+  @media(max-width:760px){ .fam{grid-template-columns:1fr 1fr;} }
+  .spectrum { display:flex; align-items:stretch; gap:0; margin:14px 0; }
+  .sp { flex:1; border:1px solid var(--border); border-radius:10px; padding:14px; }
+  .sp.in { border-left:4px solid var(--accent-2);} .sp.on { border-left:4px solid var(--warn);} .sp.out { border-left:4px solid var(--danger); background:#12100E;}
+  .sp .t { font-weight:700; } .sp.in .t{color:var(--accent-2);} .sp.on .t{color:var(--warn);} .sp.out .t{color:var(--danger);}
+  .sp .d { color:var(--muted); font-size:12.5px; margin-top:6px; }
+  .sp .ar { text-align:center; }
+  @media(max-width:760px){ .spectrum{flex-direction:column;} }
+  .term-box { background:var(--term); border:1px solid var(--border); border-radius:10px; overflow:hidden; margin:12px 0; }
+  .term-bar { background:var(--panel-2); padding:7px 12px; display:flex; gap:6px; align-items:center; border-bottom:1px solid var(--border); }
+  .term-bar i { width:11px;height:11px;border-radius:50%; } .term-bar i:nth-child(1){background:#ff5f56;} .term-bar i:nth-child(2){background:#ffbd2e;} .term-bar i:nth-child(3){background:#27c93f;}
+  .term-bar span { margin-left:8px; color:var(--muted); font-size:12px; font-family:"SF Mono",monospace; }
+  .term-body { padding:14px 16px; font-family:"SF Mono",monospace; font-size:13px; white-space:pre-wrap; }
+  .term-body .p{color:var(--accent);} .term-body .c{color:var(--muted);} .term-body .ok{color:var(--accent-2);}
+  footer { margin-top:48px; color:var(--muted); font-size:13px; border-top:1px solid var(--border); padding-top:16px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="eyebrow">Encontro 03 · Diferenciar Ferramentas e Setup</div>
+  <h1>De usuário de uma ferramenta a operador de um ambiente</h1>
+  <p class="sub">Como estruturar um prompt, qual ferramenta usar para cada tarefa, e quanto controle você mantém enquanto ela age.</p>
+
+  <nav class="tabs" role="tablist">
+    <button class="tab-btn active" data-tab="prompt">Estrutura de prompt</button>
+    <button class="tab-btn" data-tab="qual-ia">Qual IA para qual tarefa</button>
+    <button class="tab-btn" data-tab="espectro">Espectro de controle</button>
+    <button class="tab-btn" data-tab="desktop">Claude por dentro</button>
+    <button class="tab-btn" data-tab="mcp">MCP</button>
+  </nav>
+
+  <section class="tab-panel active" id="prompt" role="tabpanel">
+    <h2>Como montar um prompt bom</h2>
+    <p>Um prompt não é uma pergunta solta — é uma instrução estruturada. Quanto mais clara a estrutura, menos vezes você precisa repetir o pedido.</p>
+    <h3>Anatomia de um prompt</h3>
+    <table>
+      <tr><th>Parte</th><th>Pergunta que ela responde</th><th>Exemplo</th></tr>
+      <tr><td><b>Papel/contexto</b></td><td>Quem você é? Em que situação está?</td><td><code>Você é meu assistente para revisar contratos de investimento.</code></td></tr>
+      <tr><td><b>Tarefa</b></td><td>O que precisa ser feito, exatamente?</td><td><code>Resuma este contrato em até 5 bullets, destacando taxas e prazos.</code></td></tr>
+      <tr><td><b>Formato de saída</b></td><td>Como o resultado deve chegar até você?</td><td><code>Responda em tabela markdown com colunas Cláusula / Risco / Ação.</code></td></tr>
+      <tr><td><b>Restrições</b></td><td>O que a IA <b>não</b> deve fazer?</td><td><code>Não sugira decisão de investimento, só aponte os riscos.</code></td></tr>
+      <tr><td><b>Exemplo (few-shot)</b></td><td>Como seria um bom resultado?</td><td>Um exemplo pronto, no formato esperado, ensina mais que uma descrição.</td></tr>
+    </table>
+    <div class="callout">A ordem recomendada é <b>contexto → tarefa → formato → restrições → exemplo</b>. O modelo lê de cima para baixo e dá mais peso ao que vem por último — por isso o exemplo, quando existe, fica perto do fim.</div>
+
+    <h3>Prompt fraco vs. prompt estruturado</h3>
+    <div class="spectrum">
+      <div class="sp out"><div class="t">Fraco</div><div class="d">"Resuma esse contrato pra mim."<br>Sem contexto, sem formato, sem critério do que importa. O resultado varia a cada vez que você pede.</div></div>
+      <div class="sp ar" style="flex:0 0 30px;display:grid;place-items:center;color:var(--muted)">→</div>
+      <div class="sp in"><div class="t">Estruturado</div><div class="d">Contexto + tarefa + formato + restrição, como no exemplo abaixo. Resultado previsível, comparável entre execuções.</div></div>
+    </div>
+
+    <h3>Exemplo completo</h3>
+    <div class="term-box">
+      <div class="term-bar"><i></i><i></i><i></i><span>prompt estruturado</span></div>
+      <div class="term-body"><span class="p">Contexto</span> Você é meu assistente para revisar contratos de fundos antes de eu apresentar ao cliente.
+<span class="p">Tarefa</span> Leia o contrato anexo e liste as cláusulas que merecem atenção: taxas, prazos de resgate, carência e multas.
+<span class="p">Formato</span> Tabela markdown: Cláusula | Trecho | Por que importa.
+<span class="p">Restrições</span> Não dê opinião sobre se o fundo é bom. Só aponte o que está escrito.
+<span class="p">Exemplo</span> | Taxa de saída | "2% se resgatado antes de 12 meses" | Pode surpreender o cliente se ele precisar do dinheiro antes do prazo.
+<span class="ok">→ copie esta estrutura e troque o conteúdo pelo seu caso</span></div>
+    </div>
+
+    <h3>Erros comuns</h3>
+    <div class="callout warn"><b>Prompt genérico demais</b> ("me ajude com isso") produz resposta genérica demais. Quanto mais específico o pedido, mais específica — e útil — a resposta.</div>
+    <div class="callout danger"><b>Pedir e não guardar o formato.</b> Se você sempre precisa do mesmo tipo de saída, guarde o prompt pronto em vez de reescrevê-lo do zero — é a ideia que vira <code>prompts/</code> deste repositório.</div>
+  </section>
+
+  <section class="tab-panel" id="qual-ia" role="tabpanel">
+    <h2>Qual IA para qual tarefa</h2>
+    <p>Entre as ferramentas de chat e os agentes de código, existem várias opções especializadas. Não é "uma IA para tudo" — é escolher a certa para o trabalho.</p>
+    <table>
+      <tr><th>Tarefa</th><th>Ferramenta</th></tr>
+      <tr><td>Texto, análise, trabalho do dia a dia</td><td>Copilot · Claude · ChatGPT</td></tr>
+      <tr><td>Pesquisa com fontes</td><td>Perplexity</td></tr>
+      <tr><td>Apresentações</td><td>Gamma</td></tr>
+      <tr><td>Mapas mentais, infográficos, resumos de estudo</td><td>NotebookLM</td></tr>
+      <tr><td>Imagens e vídeo</td><td>Higgsfield</td></tr>
+      <tr><td>Áudio e voz</td><td>ElevenLabs</td></tr>
+      <tr><td>Automação</td><td>Claude · Augmtd</td></tr>
+      <tr><td>Código</td><td>Codex · Claude Code</td></tr>
+      <tr><td>Construir apps de IA (vibe coding)</td><td>Lovable</td></tr>
+      <tr><td>Excel</td><td>Shortcut.ai</td></tr>
+    </table>
+    <p class="sub">Toolkit adaptado de René Bohnsack (Zero to 100), 2026.</p>
+  </section>
+
+  <section class="tab-panel" id="espectro" role="tabpanel">
+    <h2>Quanto controle você mantém enquanto ela age</h2>
+    <div class="spectrum">
+      <div class="sp in"><div class="t">Human-in-the-loop</div><div class="d">Propõe; você aprova <b>cada ação</b> antes de ela acontecer — o padrão "ler → propor → executar".</div></div>
+      <div class="sp ar" style="flex:0 0 30px;display:grid;place-items:center;color:var(--muted)">→</div>
+      <div class="sp on"><div class="t">Human-on-the-loop</div><div class="d">Age sozinho; você <b>supervisiona</b> e pode intervir. Um fluxo agendado (família 3).</div></div>
+      <div class="sp ar" style="flex:0 0 30px;display:grid;place-items:center;color:var(--muted)">→</div>
+      <div class="sp out"><div class="t">Human-out-of-the-loop</div><div class="d">Ninguém revisa. <b>Nenhum uso aprovado neste curso.</b></div></div>
+    </div>
+    <div class="callout danger">
+      <b>"100% automatizado" é discurso de produto, não critério de trabalho.</b> O critério não é "quanto dá para automatizar",
+      é "quanto você pode automatizar <b>sem deixar de responder pela decisão</b>". Art. 17 CVM 19: automação não mitiga a sua responsabilidade.
+    </div>
+    <p class="sub">As famílias diferem em <i>o que fazem</i>; este espectro, em <i>quanto decidem sem você</i>. Um agente de código que você deixa "resolver tudo" sem revisar o diff está deslizando para out-of-the-loop. Esta régua volta formal no E08 (revisão) e E09 ("IA transforma e sugere; o banco calcula; você decide").</p>
+  </section>
+
+  <section class="tab-panel" id="desktop" role="tabpanel">
+    <h2>Claude por dentro</h2>
+    <p>Claude é a inteligência; ela aparece em várias interfaces. As que mais importam aqui:</p>
+    <table>
+      <tr><th>Interface</th><th>Para quê</th></tr>
+      <tr><td><b>Claude.ai</b> (web/desktop/app)</td><td>Conversas, escrita, análise, criar arquivos — o foco do dia a dia</td></tr>
+      <tr><td><b>Claude Code</b></td><td>Edita arquivos, roda comandos, faz commits — a família 4 do curso</td></tr>
+      <tr><td><b>Claude no Slack / 365 / Design</b></td><td>Claude dentro das ferramentas que você já usa</td></tr>
+    </table>
+    <h3>Claude Desktop — funcionalidades que você vai usar</h3>
+    <table>
+      <tr><th>Funcionalidade</th><th>Por que importa</th></tr>
+      <tr><td><b>Conversas</b></td><td>Retoma um chat antigo em vez de recomeçar do zero</td></tr>
+      <tr><td><b>Projects</b></td><td>Instrução que você escreve uma vez e vale em toda conversa — a ideia que vira <code>CLAUDE.md</code> no E04</td></tr>
+      <tr><td><b>Artifacts</b></td><td>Documento/código numa janela ao lado, editável e exportável</td></tr>
+      <tr><td><b>Conectores (MCP)</b></td><td>Liga a Gmail, Drive, Calendar, ou o MCP da Mont</td></tr>
+      <tr><td><b>Anexar arquivo</b></td><td>Onde a régua do E01 vale: planilha sobe <b>sem</b> coluna de identificação</td></tr>
+      <tr><td><b>Config → Privacidade</b></td><td>Liga/desliga se a conversa alimenta o treinamento — confirme ao vivo que fez</td></tr>
+    </table>
+  </section>
+
+  <section class="tab-panel" id="mcp" role="tabpanel">
+    <h2>MCP em 5 minutos</h2>
+    <p>MCP é um <b>protocolo aberto</b> — o <b>USB-C das ferramentas de IA</b>. Antes, cada integração era um cabo proprietário; com um padrão, a mesma ferramenta (Gmail, Drive, banco, sistema da Mont) serve a qualquer cliente que fale o protocolo.</p>
+    <table>
+      <tr><th>Papel</th><th>O que é</th><th>No curso</th></tr>
+      <tr><td><b>Servidor MCP</b></td><td>Quem expõe ferramentas</td><td>Você constrói um no E10</td></tr>
+      <tr><td><b>Cliente MCP</b></td><td>Quem consome (Claude Code, chat c/ conectores)</td><td>Usado desde hoje</td></tr>
+      <tr><td><b>Ferramenta</b></td><td>Ação nomeada, com entrada e saída</td><td><code>criar_tarefa</code> no E10</td></tr>
+    </table>
+    <div class="callout">Uma ferramenta tem <b>nome</b>, <b>descrição</b> (o que o modelo lê para decidir se usa), <b>entrada</b> e <b>saída</b>. A descrição é a parte subestimada: ferramenta mal descrita não é chamada. O MCP da Mont aparece no E05.</div>
+  </section>
+
+  <footer>Mont Academy · Workshop Claude · Encontro 03. Prompts de primeiro contato em <code>prompts/</code>.</footer>
+</div>
+<script>
+  document.querySelectorAll('.tab-btn').forEach(function(btn){ btn.addEventListener('click',function(){
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+    btn.classList.add('active'); document.getElementById(btn.dataset.tab).classList.add('active');
+  });});
+</script>
+</body>
+</html>
