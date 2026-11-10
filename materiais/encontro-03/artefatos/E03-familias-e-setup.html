@@ -62,6 +62,7 @@
   <nav class="tabs" role="tablist">
     <button class="tab-btn active" data-tab="prompt">Estrutura de prompt</button>
     <button class="tab-btn" data-tab="qual-ia">Qual IA para qual tarefa</button>
+    <button class="tab-btn" data-tab="qual-modelo">Qual modelo do Claude</button>
     <button class="tab-btn" data-tab="espectro">Espectro de controle</button>
     <button class="tab-btn" data-tab="desktop">Claude por dentro</button>
     <button class="tab-btn" data-tab="mcp">MCP</button>
@@ -121,6 +122,26 @@
       <tr><td>Excel</td><td>Shortcut.ai</td></tr>
     </table>
     <p class="sub">Toolkit adaptado de René Bohnsack (Zero to 100), 2026.</p>
+  </section>
+
+  <section class="tab-panel" id="qual-modelo" role="tabpanel">
+    <h2>Qual modelo do Claude usar</h2>
+    <p>Dentro do Claude existe mais de um modelo — não é só "o Claude", é uma família. Cada um troca velocidade e custo por profundidade de raciocínio. Escolher o modelo errado não quebra o trabalho, mas custa tempo (modelo fraco demais) ou dinheiro e paciência (modelo forte demais para uma tarefa simples).</p>
+    <div class="fam">
+      <div class="fcard"><div class="n">Mais rápido</div><div class="t">Haiku</div><div class="d">Tarefas simples e repetitivas: classificar, extrair dado de um texto, responder algo curto. Alto volume, baixa complexidade.</div></div>
+      <div class="fcard f4"><div class="n">Padrão do dia a dia</div><div class="t">Sonnet</div><div class="d">Escrever, revisar, programar, analisar um relatório. Comece aqui — é o equilíbrio certo pra maioria das tarefas do curso.</div></div>
+      <div class="fcard"><div class="n">Mais profundo</div><div class="t">Opus</div><div class="d">Muitas variáveis, raciocínio em várias etapas, decisão de alto risco — a análise que você vai assinar com seu nome.</div></div>
+      <div class="fcard"><div class="n">Conteúdo/tom</div><div class="t">Fable</div><div class="d">Rascunho de comunicação, narrativa, texto com tom mais humano — quando o objetivo é como algo é dito, não um cálculo.</div></div>
+    </div>
+    <table>
+      <tr><th>Modelo</th><th>Quando usar</th><th>Quando <b>não</b> usar</th></tr>
+      <tr><td><b>Haiku</b></td><td>Volume alto, tarefa repetitiva, resposta precisa ser rápida e barata</td><td>Quando a tarefa exige raciocínio em várias etapas ou ler um documento longo e complexo</td></tr>
+      <tr><td><b>Sonnet</b></td><td>Escolha padrão: redação, revisão, código, análise do dia a dia</td><td>Nem no problema mais difícil do seu dia, nem na tarefa mais trivial — aí vale trocar</td></tr>
+      <tr><td><b>Opus</b></td><td>Problema com muitas partes móveis, decisão de alto risco, revisão que precisa ser rigorosa</td><td>Pedido simples — fica mais lento e mais caro sem ganho perceptível</td></tr>
+      <tr><td><b>Fable</b></td><td>Texto com intenção de tom: narrativa, comunicação, apresentação</td><td>Tarefa técnica ou que exige precisão numérica</td></tr>
+    </table>
+    <div class="callout"><b>Regra prática:</b> comece no Sonnet. Suba para Opus quando perceber que a resposta está superficial ou errando o raciocínio — não antes de tentar. Desça para Haiku quando a tarefa é repetitiva e velocidade/custo importam mais que profundidade.</div>
+    <p class="sub">No Claude Code o modelo também pode ser trocado durante o trabalho (comando <code>/model</code>) — a mesma lógica acima vale: Sonnet como padrão, Opus para o trecho difícil do problema.</p>
   </section>
 
   <section class="tab-panel" id="espectro" role="tabpanel">
