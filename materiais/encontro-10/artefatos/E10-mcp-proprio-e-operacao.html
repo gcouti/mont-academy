@@ -6,7 +6,8 @@
 <title>E10 — MCP Próprio e Operação</title>
 <style>
   :root { --bg:#0f1115; --panel:#181b22; --panel-2:#1f232c; --term:#0b0d12; --ink:#e8eaed; --muted:#9aa3b2;
-    --accent:#6ea8fe; --accent-2:#7ee787; --warn:#f0b429; --danger:#ff7a7a; --border:#2a2f3a; }
+    --accent:#6ea8fe; --accent-2:#7ee787; --warn:#f0b429; --danger:#ff7a7a; --border:#2a2f3a; --danger-bg:#12100E; }
+  html[data-theme="light"] { --bg:#ffffff; --panel:#f5f6f8; --panel-2:#e9ebef; --term:#eef0f3; --ink:#1a1d23; --muted:#5b6472; --accent:#1d5fd1; --accent-2:#15803d; --warn:#92590a; --danger:#c0392b; --border:#d7dbe2; --danger-bg:#fdecec; }
   * { box-sizing:border-box; }
   body { margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
     background:var(--bg); color:var(--ink); line-height:1.55; padding:40px 24px 80px; }
@@ -44,9 +45,17 @@
   @media(max-width:760px){ .pipe{flex-direction:column;} .pipe .ar{transform:rotate(90deg);} }
   .note { font-size:12.5px; color:var(--muted); background:var(--panel-2); border:1px dashed var(--border); border-radius:8px; padding:10px 14px; margin:14px 0; }
   footer { margin-top:48px; color:var(--muted); font-size:13px; border-top:1px solid var(--border); padding-top:16px; }
+
+  .theme-toggle { position:fixed; top:16px; right:16px; z-index:50; background:var(--panel); border:1px solid var(--border);
+    color:var(--ink); font:inherit; font-size:13px; font-weight:600; padding:8px 14px; border-radius:999px; cursor:pointer;
+    box-shadow:0 2px 10px rgba(0,0,0,.25); transition:border-color .15s ease; }
+  .theme-toggle:hover { border-color:var(--accent); }
+  @media (max-width:760px){ .theme-toggle{ top:10px; right:10px; padding:6px 10px; font-size:12px; } }
 </style>
 </head>
 <body>
+<button class="theme-toggle" id="theme-toggle" aria-label="Alternar tema claro/escuro">🌙 Escuro</button>
+
 <div class="wrap">
   <div class="eyebrow">Encontro 10 · MCP Próprio e Operação</div>
   <h1>Segredos, backup testado e suas ferramentas expostas ao agente</h1>
@@ -145,6 +154,23 @@ dist/</div>
     document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
     btn.classList.add('active'); document.getElementById(btn.dataset.tab).classList.add('active');
   });});
+</script>
+<script>
+  (function(){
+    var KEY = 'mont-theme';
+    var root = document.documentElement;
+    var btn = document.getElementById('theme-toggle');
+    function apply(theme){
+      if (theme === 'light') { root.setAttribute('data-theme','light'); btn.textContent = '☀️ Claro'; }
+      else { root.removeAttribute('data-theme'); btn.textContent = '🌙 Escuro'; }
+    }
+    apply(localStorage.getItem(KEY) || 'dark');
+    btn.addEventListener('click', function(){
+      var next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+      localStorage.setItem(KEY, next);
+      apply(next);
+    });
+  })();
 </script>
 </body>
 </html>
