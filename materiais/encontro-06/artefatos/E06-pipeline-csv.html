@@ -83,64 +83,89 @@
 <div class="wrap">
   <header>
     <div class="eyebrow">Encontro 06 · Ingestão e Tratamento de Dados</div>
-    <h1>CSV de corretora → <code>posicao</code>, sem duplicar e sozinho</h1>
+    <h1>Ingerir informações de diversas fontes de dados</h1>
     <p class="sub">Ler, normalizar, validar com relatório, gravar sem duplicar — e deixar rodar agendado. Código gerado por IA, execução sem IA.</p>
   </header>
 
   <nav class="tabs" role="tablist">
-    <button class="tab-btn active" data-tab="dores">As 3 dores</button>
-    <button class="tab-btn" data-tab="pipeline">O pipeline</button>
-    <button class="tab-btn" data-tab="norm">Normalização</button>
-    <button class="tab-btn" data-tab="valida">Validação + idempotência</button>
-    <button class="tab-btn" data-tab="n8n">n8n: rodar sozinha</button>
+    <button class="tab-btn active" data-tab="pipeline">O pipeline</button>
+    <button class="tab-btn" data-tab="ler">1. Ler</button>
+    <button class="tab-btn" data-tab="mapear">2. Mapear</button>
+    <button class="tab-btn" data-tab="norm">3. Normalizar</button>
+    <button class="tab-btn" data-tab="valida">4. Validar</button>
+    <button class="tab-btn" data-tab="upsert">5. Upsert</button>
+    <button class="tab-btn" data-tab="automacao">Ferramentas de automação</button>
   </nav>
 
-  <!-- ===== DORES ===== -->
-  <section class="tab-panel active" id="dores" role="tabpanel">
-    <h2>Três dores do CSV de corretora</h2>
-    <div class="card">
-      <h3>1 · Cada corretora usa um formato</h3>
-      <p class="sub" style="margin:0">Coluna com nome diferente, separador diferente (<code>;</code> vs <code>,</code>), encoding diferente, ativo com sigla diferente.</p>
-    </div>
-    <div class="card">
-      <h3>2 · Dados sujos</h3>
-      <p class="sub" style="margin:0">Espaços à direita (<code>"ITSA4 "</code>), vírgula por ponto, data em três formatos, <code>R$</code> no meio do número.</p>
-    </div>
-    <div class="card">
-      <h3>3 · Sem identidade estável</h3>
-      <p class="sub" style="margin:0"><code>ITSA4</code> numa corretora vira <code>ITAUSA4</code> ou <code>ITAÚSA PN</code> em outra. Mesmo ativo, três nomes.</p>
-    </div>
-    <div class="callout warn">
-      A regra do E03 volta: <b>planilha é para ler, nunca para calcular.</b> Aqui a leitura vira
-      ingestão, mas o cálculo continua sendo do banco.
-    </div>
-  </section>
-
   <!-- ===== PIPELINE ===== -->
-  <section class="tab-panel" id="pipeline" role="tabpanel">
+  <section class="tab-panel active" id="pipeline" role="tabpanel">
     <h2>O pipeline, do arquivo ao banco</h2>
+    <p class="sub">Clique num passo do diagrama ou na aba dele, acima, para ver em detalhe.</p>
     <div class="pipe">
-      <div class="stage"><div class="n">1</div><div class="t">Ler</div><div class="d">separador, encoding, cabeçalho</div></div>
+      <div class="stage" data-goto="ler" style="cursor:pointer"><div class="n">1</div><div class="t">Ler</div><div class="d">separador, encoding, cabeçalho</div></div>
       <div class="ar">→</div>
-      <div class="stage"><div class="n">2</div><div class="t">Mapear</div><div class="d">colunas → esquema do curso</div></div>
+      <div class="stage" data-goto="mapear" style="cursor:pointer"><div class="n">2</div><div class="t">Mapear</div><div class="d">colunas → esquema do curso</div></div>
       <div class="ar">→</div>
-      <div class="stage"><div class="n">3</div><div class="t">Normalizar</div><div class="d">ativo, data, valor, classe</div></div>
+      <div class="stage" data-goto="norm" style="cursor:pointer"><div class="n">3</div><div class="t">Normalizar</div><div class="d">ativo, data, valor, classe</div></div>
       <div class="ar">→</div>
-      <div class="stage"><div class="n">4</div><div class="t">Validar</div><div class="d">linha por linha</div></div>
+      <div class="stage" data-goto="valida" style="cursor:pointer"><div class="n">4</div><div class="t">Validar</div><div class="d">linha por linha</div></div>
       <div class="ar">→</div>
-      <div class="stage"><div class="n">5</div><div class="t">Upsert</div><div class="d">chave: cliente+ativo+data</div></div>
+      <div class="stage" data-goto="upsert" style="cursor:pointer"><div class="n">5</div><div class="t">Upsert</div><div class="d">chave: cliente+ativo+data</div></div>
     </div>
 
     <div class="branch">
       <div class="b yes"><h3>✓ Passou</h3><p style="margin:0" class="sub">Upsert em <code>posicao</code> — insere ou atualiza, nunca duplica.</p></div>
       <div class="b no"><h3>⚠ Caiu</h3><p style="margin:0" class="sub">Gera o relatório de inconsistência. <b>Você lê ANTES de qualquer gravação.</b></p></div>
     </div>
+  </section>
 
+  <!-- ===== 1. LER ===== -->
+  <section class="tab-panel" id="ler" role="tabpanel">
+    <h2>Passo 1 · Ler o arquivo</h2>
+    <p>Antes de tratar qualquer coisa, o importador só <b>olha</b>: nada é alterado, nada é gravado. O pedido certo aqui é descritivo, não corretivo.</p>
+    <table>
+      <tr><th>O que descobrir</th><th>Exemplo</th></tr>
+      <tr><td>Separador</td><td class="mono was"><code>;</code> (Alfa) vs <code>,</code> (Beta, Gama)</td></tr>
+      <tr><td>Encoding</td><td class="mono was">UTF-8, Latin-1/Windows-1252</td></tr>
+      <tr><td>Cabeçalho</td><td class="mono was">nomes de coluna — às vezes a data só está ali, não em cada linha</td></tr>
+    </table>
     <div class="callout">
-      <b>O laço de melhoria:</b> todo caso que a normalização não pegou vira uma linha nova em
-      <code>ativo-sinonimos.csv</code> — a mesma disciplina do LLM Wiki (E03). O importador fica melhor
-      porque você alimentou a regra, não porque alguém reescreveu o código.
+      <b>Prompt do passo 1:</b> "leia e me diga o que viu" — nomes de coluna, separador, encoding, o que parece
+      ser ativo/valor/data. <b>Não</b> "leia e corrija". Corrigir é o passo 3 (Normalizar).
     </div>
+    <div class="callout warn">
+      Se aparecer <code>AÇÃO</code> virando <code>AÃÃO</code> ou <code>A�O</code>, é <b>encoding</b> (arquivo em
+      Latin-1/Windows-1252, lido como UTF-8) — não é corrupção, é tradução errada. Cole o sintoma no agente.
+    </div>
+  </section>
+
+  <!-- ===== 2. MAPEAR ===== -->
+  <section class="tab-panel" id="mapear" role="tabpanel">
+    <h2>Passo 2 · Mapear colunas → esquema do curso</h2>
+    <p>Cada corretora nomeia as colunas do seu jeito. Mapear é decidir, <b>uma vez por corretora</b>, qual coluna de origem vira qual campo de <code>posicao</code> — antes de tratar o conteúdo.</p>
+    <table>
+      <tr><th>Pergunta a fazer</th><th>Campo em <code>posicao</code></th></tr>
+      <tr><td>Qual coluna identifica o ativo (código ou nome)?</td><td class="mono now">ativo</td></tr>
+      <tr><td>Qual é a classe do ativo (ação, FII...), se existir?</td><td class="mono now">classe</td></tr>
+      <tr><td>Qual é o valor monetário (quantidade, preço, total)?</td><td class="mono now">valor</td></tr>
+      <tr><td>Qual é a data de referência — está na linha ou só no cabeçalho?</td><td class="mono now">data</td></tr>
+    </table>
+    <div class="callout">
+      O mapeamento é <b>por corretora, não por arquivo</b>: uma vez descoberto para a "Corretora Alfa", vale
+      para todo arquivo novo dela — só muda quando a corretora muda o layout.
+    </div>
+  </section>
+
+  <!-- ===== 3. NORMALIZAR ===== -->
+  <section class="tab-panel" id="norm" role="tabpanel">
+    <h2>Passo 3 · Quatro tratamentos padrão</h2>
+    <table>
+      <tr><th>Tratamento</th><th>Antes</th><th>Depois</th></tr>
+      <tr><td>Ativo com sigla estável</td><td class="mono was">"ITSA4", "ITAUSA4", "ITAÚSA PN"</td><td class="mono now">ITSA4</td></tr>
+      <tr><td>Datas → ISO</td><td class="mono was">"01/11/2026", "1-Nov-2026"</td><td class="mono now">2026-11-01</td></tr>
+      <tr><td>Valores → número</td><td class="mono was">"R$ 1.234,56", "1,234.56"</td><td class="mono now">1234.56</td></tr>
+      <tr><td>Classe de ativo</td><td class="mono was">"AÇÃO", "ação", "Ações"</td><td class="mono now">acao</td></tr>
+    </table>
 
     <h3>Antes → depois (a mesma linha, três corretoras)</h3>
     <table>
@@ -150,21 +175,11 @@
       <tr><td>Gama</td><td class="mono was">ITAUSA4 , acao , "10,520.00" , (cabeçalho: 1-Nov-2026)</td><td class="mono now">ITSA4 · acao · 10520.00 · 2026-11-01</td></tr>
     </table>
     <p class="loop-note">Três arquivos, três formatos — <b>uma única linha canônica</b>.</p>
-  </section>
 
-  <!-- ===== NORMALIZAÇÃO ===== -->
-  <section class="tab-panel" id="norm" role="tabpanel">
-    <h2>Quatro tratamentos padrão</h2>
-    <table>
-      <tr><th>Tratamento</th><th>Antes</th><th>Depois</th></tr>
-      <tr><td>Ativo com sigla estável</td><td class="mono was">"ITSA4", "ITAUSA4", "ITAÚSA PN"</td><td class="mono now">ITSA4</td></tr>
-      <tr><td>Datas → ISO</td><td class="mono was">"01/11/2026", "1-Nov-2026"</td><td class="mono now">2026-11-01</td></tr>
-      <tr><td>Valores → número</td><td class="mono was">"R$ 1.234,56", "1,234.56"</td><td class="mono now">1234.56</td></tr>
-      <tr><td>Classe de ativo</td><td class="mono was">"AÇÃO", "ação", "Ações"</td><td class="mono now">acao</td></tr>
-    </table>
     <div class="callout">
-      A tabela de mapeamento <code>ativo-sinonimos.csv</code> mora no <code>raw/</code> e cresce com o uso.
-      <b>Regra escrita, revisada ao longo do tempo</b> — igual ao E03.
+      <b>O laço de melhoria:</b> todo caso que a normalização não pegou vira uma linha nova em
+      <code>ativo-sinonimos.csv</code> — a mesma disciplina do LLM Wiki (E03). O importador fica melhor
+      porque você alimentou a regra, não porque alguém reescreveu o código.
     </div>
     <div class="callout warn">
       <b>Encoding vai travar alguém:</b> <code>AÇÃO</code> virando <code>AÃÃO</code> ou <code>A�O</code> não é
@@ -178,9 +193,9 @@
     </div>
   </section>
 
-  <!-- ===== VALIDAÇÃO + IDEMPOTÊNCIA ===== -->
+  <!-- ===== 4. VALIDAR ===== -->
   <section class="tab-panel" id="valida" role="tabpanel">
-    <h2>O relatório é barreira, não log</h2>
+    <h2>Passo 4 · O relatório é barreira, não log</h2>
     <p>Antes de gravar, o importador apresenta: quantas linhas leu, quantas passaram, quantas caíram e por quê. <b>Nunca grava sem mostrar isso.</b></p>
     <div class="term-box">
       <div class="term-bar"><i></i><i></i><i></i><span>relatório de inconsistência (dry-run)</span></div>
@@ -194,12 +209,16 @@ CAÍRAM ................. 1
 
 <span class="c">Nenhuma linha gravada. Corrija a tabela e rode de novo.</span></div>
     </div>
+  </section>
 
-    <h2>Idempotência: rodar de novo não muda o resultado</h2>
+  <!-- ===== 5. UPSERT ===== -->
+  <section class="tab-panel" id="upsert" role="tabpanel">
+    <h2>Passo 5 · Upsert: rodar de novo não muda o resultado</h2>
     <p>Apertar o botão do elevador cinco vezes não faz ele vir cinco vezes. A regra:</p>
     <div class="callout">
       Uma linha em <code>posicao</code> é única pela combinação <b><code>(cliente_id, ativo, data)</code></b>.
-      Se já existe, <b>atualiza</b>; se não, <b>insere</b>. A palavra técnica é <b>upsert</b>.
+      Se já existe, <b>atualiza</b>; se não, <b>insere</b>. A palavra técnica é <b>upsert</b>. Essa propriedade
+      — rodar de novo não muda o resultado — chama-se <b>idempotência</b>.
     </div>
     <p>Três situações reais em que, sem isso, o patrimônio <b>dobra</b> no dashboard do E07:</p>
     <table>
@@ -214,11 +233,26 @@ CAÍRAM ................. 1
     </div>
   </section>
 
-  <!-- ===== N8N ===== -->
-  <section class="tab-panel" id="n8n" role="tabpanel">
-    <h2>n8n: fazer a carga rodar sozinha</h2>
-    <p>O importador funciona, mas só roda quando você lembra. Posição muda todo dia útil. <b>Ou você lembra todo dia às 6h, ou alguém lembra por você.</b></p>
-    <p class="sub">n8n é um canvas de automação: você arrasta caixas e ele executa sozinho na nuvem. É a família 3 do E02 (orquestrador de fluxo). Hoje o fluxo é uma <b>linha reta</b> — três conceitos só.</p>
+  <!-- ===== FERRAMENTAS DE AUTOMAÇÃO ===== -->
+  <section class="tab-panel" id="automacao" role="tabpanel">
+    <h2>Ferramentas de automação de fluxos de trabalho</h2>
+    <p>O importador funciona, mas só roda quando você lembra. Posição muda todo dia útil. <b>Ou você lembra todo dia às 6h, ou uma ferramenta lembra por você.</b></p>
+
+    <h3>Algumas opções do mercado</h3>
+    <table>
+      <tr><th>Ferramenta</th><th>Quando faz sentido</th></tr>
+      <tr><td><b>n8n</b></td><td>Open-source, self-host ou cloud, nós ilimitados — a escolhida neste curso</td></tr>
+      <tr><td><b>Zapier</b></td><td>Mais simples de começar, integrações prontas, mas cobra por execução</td></tr>
+      <tr><td><b>Make (antigo Integromat)</b></td><td>Visual, bom para fluxos complexos com ramificação</td></tr>
+      <tr><td><b>Pipedream</b></td><td>Mais técnico, permite código no meio do fluxo</td></tr>
+    </table>
+    <div class="callout">
+      Todas resolvem o mesmo problema — <b>gatilho → ações → tratamento de erro</b> — sem você precisar rodar
+      nada à mão. O curso usa <b>n8n</b> porque é open-source e o canvas fica sob seu controle.
+    </div>
+
+    <h3>n8n: o canvas de hoje</h3>
+    <p class="sub">n8n é um canvas de automação: você arrasta caixas e ele executa sozinho na nuvem. É a família 3 do E02 (orquestrador de fluxo). Hoje o fluxo é uma <b>linha reta</b> — três conceitos só, válidos em qualquer uma das ferramentas acima.</p>
 
     <table>
       <tr><th>Conceito</th><th>O que é</th><th>No fluxo de hoje</th></tr>
@@ -257,6 +291,10 @@ CAÍRAM ................. 1
 </div>
 
 <script>
+  function goToTab(tab) {
+    var target = document.querySelector('.tab-btn[data-tab="' + tab + '"]');
+    if (target) target.click();
+  }
   document.querySelectorAll('.tab-btn').forEach(function (btn) {
     btn.addEventListener('click', function () {
       document.querySelectorAll('.tab-btn').forEach(function (b) { b.classList.remove('active'); });
@@ -264,6 +302,9 @@ CAÍRAM ................. 1
       btn.classList.add('active');
       document.getElementById(btn.dataset.tab).classList.add('active');
     });
+  });
+  document.querySelectorAll('.stage[data-goto]').forEach(function (stage) {
+    stage.addEventListener('click', function () { goToTab(stage.dataset.goto); });
   });
 </script>
 <script>
