@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>E07 — Interface de Dados e Confirmação de Reunião</title>
+<style>
+  :root { --bg:#0f1115; --panel:#181b22; --panel-2:#1f232c; --term:#0b0d12; --ink:#e8eaed; --muted:#9aa3b2;
+    --accent:#6ea8fe; --accent-2:#7ee787; --warn:#f0b429; --danger:#ff7a7a; --border:#2a2f3a; --danger-bg:#12100E; }
+  html[data-theme="light"] { --bg:#ffffff; --panel:#f5f6f8; --panel-2:#e9ebef; --term:#eef0f3; --ink:#1a1d23; --muted:#5b6472; --accent:#1d5fd1; --accent-2:#15803d; --warn:#92590a; --danger:#c0392b; --border:#d7dbe2; --danger-bg:#fdecec; }
+  * { box-sizing: border-box; }
+  body { margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg); color:var(--ink); line-height:1.55; padding:40px 24px 80px; }
+  .wrap { max-width:1040px; margin:0 auto; }
+  .eyebrow { color:var(--accent); font-weight:700; letter-spacing:.08em; text-transform:uppercase; font-size:13px; }
+  h1 { font-size:32px; margin:6px 0 8px; } .sub { color:var(--muted); font-size:17px; }
+  h2 { font-size:22px; margin:34px 0 14px; padding-bottom:8px; border-bottom:1px solid var(--border); }
+  h3 { font-size:16px; margin:20px 0 8px; }
+  code { font-family:"SF Mono",Menlo,Consolas,monospace; }
+  p code,li code,td code { background:var(--panel-2); padding:2px 6px; border-radius:4px; color:var(--accent-2); font-size:13.5px; }
+  a { color:var(--accent); }
+  .tabs { display:flex; gap:6px; margin:22px 0 10px; border-bottom:1px solid var(--border); flex-wrap:wrap; }
+  .tab-btn { background:transparent; border:none; color:var(--muted); font:inherit; font-weight:600; font-size:15px;
+    padding:12px 16px; cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-1px; }
+  .tab-btn:hover { color:var(--ink); } .tab-btn.active { color:var(--accent); border-bottom-color:var(--accent); }
+  .tab-panel { display:none; animation:fadeIn .25s ease; } .tab-panel.active { display:block; }
+  @keyframes fadeIn { from{opacity:0;} to{opacity:1;} }
+  .card { background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:20px; margin:14px 0; }
+  .callout { background:var(--panel); border-left:4px solid var(--accent); border-radius:8px; padding:16px 20px; margin:16px 0; }
+  .callout.warn { border-left-color:var(--warn);} .callout.danger { border-left-color:var(--danger);}
+  .callout b { color:var(--accent);} .callout.warn b{color:var(--warn);} .callout.danger b{color:var(--danger);}
+  table { width:100%; border-collapse:collapse; margin:14px 0; background:var(--panel); border-radius:8px; overflow:hidden; }
+  th,td { padding:11px 13px; text-align:left; border-bottom:1px solid var(--border); vertical-align:top; font-size:14px; }
+  th { background:var(--panel-2); font-size:12.5px; letter-spacing:.03em; color:var(--muted); text-transform:uppercase; }
+  td code { color:var(--accent-2); }
+  .term-box { background:var(--term); border:1px solid var(--border); border-radius:10px; overflow:hidden; margin:12px 0; }
+  .term-bar { background:var(--panel-2); padding:7px 12px; display:flex; gap:6px; align-items:center; border-bottom:1px solid var(--border); }
+  .term-bar i { width:11px;height:11px;border-radius:50%; } .term-bar i:nth-child(1){background:#ff5f56;} .term-bar i:nth-child(2){background:#ffbd2e;} .term-bar i:nth-child(3){background:#27c93f;}
+  .term-bar span { margin-left:8px; color:var(--muted); font-size:12px; font-family:"SF Mono",monospace; }
+  .term-body { padding:14px 16px; font-family:"SF Mono",monospace; font-size:13px; white-space:pre-wrap; }
+  .term-body .k{color:var(--accent);} .term-body .c{color:var(--muted);} .term-body .bad{color:var(--danger);} .term-body .ok{color:var(--accent-2);}
+  .steps { counter-reset:s; } .stp { display:grid; grid-template-columns:34px 1fr; gap:12px; margin:10px 0; }
+  .stp .n { width:30px;height:30px;border-radius:50%; background:var(--panel-2); border:1px solid var(--border); display:grid; place-items:center; font-weight:700; color:var(--accent); }
+  .mock { background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:18px; margin:14px 0; }
+  .mock .row { display:flex; justify-content:space-between; align-items:center; gap:12px; padding:8px 0; border-bottom:1px solid var(--border); }
+  .mock .row:last-child { border-bottom:none; }
+  .btn { display:inline-block; background:var(--accent); color:var(--bg); font-weight:700; font-size:13px; padding:7px 14px; border-radius:6px; white-space:nowrap; cursor:default; }
+  .btn.ok { background:var(--accent-2); }
+  .btn.danger { background:var(--danger); }
+  .mock-form { background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:18px; margin:14px 0; max-width:420px; }
+  .mock-form .f { margin-bottom:12px; }
+  .mock-form .f label { display:block; font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:.03em; margin-bottom:4px; }
+  .mock-form .f .val { background:var(--panel-2); border:1px solid var(--border); border-radius:6px; padding:8px 10px; font-size:14px; }
+  .mock-form .actions { display:flex; gap:8px; margin-top:16px; }
+  footer { margin-top:48px; color:var(--muted); font-size:13px; border-top:1px solid var(--border); padding-top:16px; }
+
+  .theme-toggle { position:fixed; top:16px; right:16px; z-index:50; background:var(--panel); border:1px solid var(--border);
+    color:var(--ink); font:inherit; font-size:13px; font-weight:600; padding:8px 14px; border-radius:999px; cursor:pointer;
+    box-shadow:0 2px 10px rgba(0,0,0,.25); transition:border-color .15s ease; }
+  .theme-toggle:hover { border-color:var(--accent); }
+  @media (max-width:760px){ .theme-toggle{ top:10px; right:10px; padding:6px 10px; font-size:12px; } }
+</style>
+</head>
+<body>
+<button class="theme-toggle" id="theme-toggle" aria-label="Alternar tema claro/escuro">🌙 Escuro</button>
+
+<div class="wrap">
+  <div class="eyebrow">Encontro 07 · Interfaces e Vibe Coding</div>
+  <h1>Da tela que só mostra à tela que edita e confirma</h1>
+  <p class="sub">Transforme a consulta do E05 numa interface completa — criar, editar e excluir — e adicione um botão que prepara a confirmação de reunião com o cliente.</p>
+
+  <nav class="tabs" role="tablist">
+    <button class="tab-btn active" data-tab="intro">Da leitura à edição</button>
+    <button class="tab-btn" data-tab="crud">Construir o CRUD</button>
+    <button class="tab-btn" data-tab="confirmacao">Botão de confirmação</button>
+    <button class="tab-btn" data-tab="vibe">Claude Code × Lovable</button>
+    <button class="tab-btn" data-tab="paracasa">Para casa</button>
+  </nav>
+
+  <section class="tab-panel active" id="intro" role="tabpanel">
+    <h2>O que muda da consulta para a edição</h2>
+    <p>No E05 você fez uma tela que <b>lê</b> as cinco tabelas, com RLS garantindo que cada advisor só vê o que é seu. Hoje essa tela ganha botões de <b>criar</b>, <b>editar</b> e <b>excluir</b> — e editar dado é mais arriscado que ler dado.</p>
+    <table>
+      <tr><th>Operação</th><th>Risco que não existia em leitura</th><th>Proteção</th></tr>
+      <tr><td>Criar</td><td>Registro duplicado, campo obrigatório vazio</td><td>Validação no formulário antes de enviar</td></tr>
+      <tr><td>Editar</td><td>Sobrescrever um dado certo com um errado, sem perceber</td><td>Formulário abre com o valor atual preenchido; confirmar antes de salvar</td></tr>
+      <tr><td>Excluir</td><td>Apagar um cliente que tem interação, tarefa e posição ligadas a ele</td><td><b>Confirmação explícita</b> — nunca um clique só</td></tr>
+    </table>
+    <div class="callout danger">
+      <b>RLS protege contra outro advisor editar o seu dado — não te protege de você mesmo editar o campo errado.</b>
+      A interface é a sua segunda linha de defesa: confirmação antes de salvar, confirmação antes de excluir.
+    </div>
+    <div class="callout">
+      O princípio do curso continua: <b>o agente mostra o código antes de aplicar; você aprova.</b> Vale também
+      aqui — qualquer alteração de schema ou dado em massa passa pelo mesmo crivo do E05.
+    </div>
+  </section>
+
+  <section class="tab-panel" id="crud" role="tabpanel">
+    <h2>Da leitura (E05) ao CRUD completo</h2>
+    <p>Você parte da tela do advisor que já existe. O prompt pede as três operações que faltam — uma de cada vez, não tudo junto.</p>
+    <div class="steps">
+      <div class="stp"><div class="n">1</div><div><b>Criar</b> — formulário com os campos obrigatórios de cada tabela (ex.: <code>cliente</code> pede nome; <code>tarefa</code> pede descrição e prazo). Valide antes de enviar.</div></div>
+      <div class="stp"><div class="n">2</div><div><b>Editar</b> — abre o registro com os valores atuais já preenchidos. Nunca um formulário em branco para editar algo que já existe.</div></div>
+      <div class="stp"><div class="n">3</div><div><b>Excluir</b> — sempre com uma pergunta de confirmação ("Excluir o cliente X? Isso não apaga as interações e tarefas ligadas a ele."). Nunca um botão que exclui direto.</div></div>
+      <div class="stp"><div class="n">4</div><div><b><code>owner_id</code> continua automático</b> — o formulário nunca deixa escolher o <code>owner_id</code>; ele vem de <code>auth.uid()</code>, igual ao E05.</div></div>
+    </div>
+
+    <h3>Como a tela fica</h3>
+    <div class="mock">
+      <div class="row"><div><b>Clientes</b></div><div class="btn ok">+ Novo cliente</div></div>
+      <div class="row"><div>Marina Costa — faixa 1–5 mi</div><div style="display:flex;gap:8px"><div class="btn">Editar</div><div class="btn danger">Excluir</div></div></div>
+      <div class="row"><div>Diego Alves — faixa 500k–1 mi</div><div style="display:flex;gap:8px"><div class="btn">Editar</div><div class="btn danger">Excluir</div></div></div>
+    </div>
+
+    <p class="sub">Ao clicar em "Editar", o formulário abre com os campos já preenchidos — nunca em branco:</p>
+    <div class="mock-form">
+      <div class="f"><label>Nome</label><div class="val">Marina Costa</div></div>
+      <div class="f"><label>Documento</label><div class="val">***.***.***-**</div></div>
+      <div class="f"><label>Faixa de patrimônio</label><div class="val">1–5 mi</div></div>
+      <div class="f"><label>Perfil</label><div class="val">Moderado</div></div>
+      <div class="actions"><div class="btn ok">Salvar</div><div class="btn">Cancelar</div></div>
+    </div>
+
+    <p class="sub">Ao clicar em "Excluir", uma confirmação explícita — nunca some direto:</p>
+    <div class="mock">
+      <div style="font-weight:700">Excluir o cliente Marina Costa?</div>
+      <div class="sub" style="margin:6px 0 12px">Isso não apaga as interações, tarefas e posições ligadas a ela.</div>
+      <div style="display:flex;gap:8px"><div class="btn danger">Excluir mesmo assim</div><div class="btn">Cancelar</div></div>
+    </div>
+
+    <div class="term-box">
+      <div class="term-bar"><i></i><i></i><i></i><span>prompt ao agente</span></div>
+      <div class="term-body"><span class="c">Os dados estão no Supabase (o mesmo projeto do E05) — leia e grave de lá,
+não invente dado de exemplo.
+
+Na tela do advisor que já existe, adicione criar, editar e excluir para as
+cinco tabelas. Regras: (1) o formulário de edição vem preenchido com os
+valores atuais, lidos do Supabase; (2) excluir sempre pede confirmação
+explícita, nunca um clique só; (3) owner_id nunca é campo do formulário —
+continua vindo de auth.uid(); (4) mostre mensagem de sucesso ou erro após
+cada ação.
+
+Mostre o código antes de aplicar e espere minha aprovação.</span></div>
+    </div>
+    <div class="callout warn">
+      <b>Reteste o RLS depois de adicionar escrita.</b> O teste de dois usuários do E05 (A insere, B não vê) agora
+      ganha uma segunda parte: <b>B tenta editar ou excluir uma linha de A — e tem que falhar.</b> Ler e escrever
+      são políticas separadas; confirmar uma não confirma a outra.
+    </div>
+  </section>
+
+  <section class="tab-panel" id="confirmacao" role="tabpanel">
+    <h2>Uma tela inicial, com o resumo do dia e o botão de confirmação</h2>
+    <p>Em vez de espalhar o botão dentro de cada tabela, ele mora numa <b>tela inicial</b> (home) do advisor: um
+       resumo do dia — quantas reuniões, quantas tarefas vencendo — e, junto de cada reunião, o botão que prepara
+       o rascunho de confirmação.</p>
+    <div class="callout warn">
+      <b>Regra do curso que não muda aqui:</b> nada gerado por IA vai ao cliente sem você revisar — a mesma do E08/E09.
+      O botão <b>prepara</b> a mensagem; você lê, ajusta se quiser, e manda pelo canal que já usa (WhatsApp, e-mail).
+      <b>Não é um envio automático.</b>
+    </div>
+
+    <h3>Como a tela fica</h3>
+    <div class="mock">
+      <div style="font-weight:700;margin-bottom:10px">Hoje, 24 de novembro</div>
+      <div class="sub" style="margin:0 0 14px">2 reuniões agendadas · 3 tarefas com prazo essa semana</div>
+      <div class="row"><div>Reunião com <b>Marina Costa</b> — hoje, 15h</div><div class="btn">Pedir confirmação</div></div>
+      <div class="row"><div>Reunião com <b>Diego Alves</b> — amanhã, 10h</div><div class="btn">Pedir confirmação</div></div>
+    </div>
+    <div class="term-box">
+      <div class="term-bar"><i></i><i></i><i></i><span>rascunho gerado — você copia, não é enviado</span></div>
+      <div class="term-body"><span class="c">Oi Marina! Tudo bem? Passando para confirmar nossa reunião do dia
+24/11 às 15h. Consegue comparecer? Qualquer mudança, me avisa por aqui.</span>
+
+<span class="ok">[copiar mensagem]</span></div>
+    </div>
+
+    <h3>O que a tela inicial faz</h3>
+    <div class="steps">
+      <div class="stp"><div class="n">1</div><div>Ao abrir, busca no Supabase as reuniões de hoje e os próximos dias (<code>tarefa</code> e <code>interacao</code> com data futura) e monta o resumo.</div></div>
+      <div class="stp"><div class="n">2</div><div>Para cada reunião, mostra o botão "Pedir confirmação". Ao clicar, lê cliente, data, horário e local/link do mesmo registro.</div></div>
+      <div class="stp"><div class="n">3</div><div>Gera um rascunho curto e educado pedindo confirmação — <b>só com o que está no registro</b>, nunca inventa horário ou local que falta.</div></div>
+      <div class="stp"><div class="n">4</div><div>Mostra o rascunho na tela com um botão "copiar". Nenhuma chamada a WhatsApp, e-mail ou qualquer API de envio.</div></div>
+      <div class="stp"><div class="n">5</div><div>Registra em <code>interacao</code> que o rascunho foi preparado, com <code>origem = e07-confirmacao-reuniao</code>.</div></div>
+    </div>
+    <div class="term-box">
+      <div class="term-bar"><i></i><i></i><i></i><span>prompt ao agente</span></div>
+      <div class="term-body"><span class="c">Os dados estão no Supabase (o mesmo projeto do E05/E06, já conectado) —
+leia de lá, não invente dado de exemplo.
+
+Crie uma tela inicial (home) para o advisor. Ao abrir, ela busca no Supabase
+e mostra um resumo do dia: quantas reuniões hoje, quantas tarefas com prazo
+essa semana, e a lista das próximas reuniões (tarefa ou interacao com data
+futura, do cliente deste advisor).
+
+Em cada reunião da lista, adicione um botão "Pedir confirmação". Ao clicar:
+monte uma mensagem curta e educada pedindo confirmação de presença, usando
+só os dados que já estão no registro (cliente, data, horário, local/link).
+Se faltar algum desses dados, não invente — deixe uma nota "faltou X" no
+lugar.
+
+Mostre o rascunho na tela com um botão "copiar", sem nenhum envio automático.
+Depois de gerar, registre uma linha em interacao com origem
+"e07-confirmacao-reuniao".
+
+Mostre o código antes de aplicar.</span></div>
+    </div>
+    <div class="callout">
+      <b>Verificação:</b> o resumo do dia reflete o Supabase, não dado fixo no código · o botão só aparece em
+      reuniões <b>futuras</b> · a mensagem não inventa dado que falta · nada é enviado automaticamente, só
+      copiado · o rascunho fica registrado em <code>interacao</code> com <code>origem</code>.
+    </div>
+  </section>
+
+  <section class="tab-panel" id="vibe" role="tabpanel">
+    <h2>Duas formas de construir a mesma interface</h2>
+    <p>Até aqui você pediu ao Claude Code para escrever o código da tela, arquivo por arquivo, versionado no git.
+       Existe outro caminho: ferramentas tipo <b>Lovable</b>, que geram a interface a partir de uma descrição e já
+       hospedam o resultado — o "Caminho B" que o PRD já citava desde o E05.</p>
+    <table>
+      <tr><th></th><th>Claude Code</th><th>Lovable e similares</th></tr>
+      <tr><td>Onde fica o código</td><td>No seu repositório git — você lê cada diff antes de aceitar</td><td>Na plataforma; exportável, mas não é o fluxo padrão</td></tr>
+      <tr><td>Quem hospeda</td><td>Você escolhe (ex. Vercel)</td><td>A própria plataforma, por padrão</td></tr>
+      <tr><td>Velocidade do primeiro protótipo</td><td>Mais devagar — você revisa cada passo</td><td>Mais rápido — a plataforma assume mais decisões por você</td></tr>
+      <tr><td>Controle sobre RLS e segurança</td><td>Total — você vê e aprova cada política antes de rodar</td><td>Depende da integração — confira antes de confiar</td></tr>
+      <tr><td>Quando faz sentido</td><td>Sistema que vai crescer, dado sensível de cliente, você quer entender cada parte</td><td>Protótipo rápido, validar uma ideia, interface descartável</td></tr>
+    </table>
+    <div class="callout danger">
+      <b>Se você fez o Caminho B do E05 (Lovable):</b> as regras de lá valem também aqui. O Lovable pode propor
+      migrações no seu Supabase — <b>recuse</b> qualquer migração que remova <code>owner_id</code>, desative RLS,
+      ou mude a chave de deduplicação, mesmo descrita como "melhoria". Leia a migração antes de aprovar, do
+      mesmo jeito que já faz com o Claude Code: <b>ler, propor, executar</b>.
+    </div>
+    <div class="callout">
+      Não é "qual é melhor" — é a mesma régua do <b>espectro de controle</b> (E04): quanto você quer operar
+      versus quanto você delega. Dado de cliente de investimento pede mais controle; um protótipo para validar
+      uma ideia com a diretoria pode pedir velocidade.
+    </div>
+  </section>
+
+  <section class="tab-panel" id="paracasa" role="tabpanel">
+    <h2>O que mais podemos fazer — para casa</h2>
+    <p class="sub">Ideias para explorar por conta própria, além do que foi construído em aula. Nenhuma delas é obrigatória para o critério do encontro.</p>
+
+    <div class="card">
+      <h3>Cadastro centralizado e histórico completo</h3>
+      <p style="margin:0">Reúne contatos, preferências, propostas, compras e interações (e-mail, ligações, mensagens) em um só lugar.</p>
+      <p class="sub" style="margin:8px 0 0;font-size:13px">Fontes:
+        <a href="https://www.youtube.com/watch?v=i4xQyBtQ0mA&t=1" target="_blank" rel="noopener">[1]</a>
+        <a href="https://www.instagram.com/reel/DL8P58hxnQI/" target="_blank" rel="noopener">[2]</a>
+        <a href="https://www.youtube.com/watch?v=Lce4NbyBunA" target="_blank" rel="noopener">[3]</a>
+      </p>
+    </div>
+
+    <div class="card">
+      <h3>Funil de vendas (pipeline) personalizável</h3>
+      <p style="margin:0">Permite acompanhar oportunidades por etapas (geralmente em formato Kanban) e identificar gargalos no processo comercial.</p>
+      <p class="sub" style="margin:8px 0 0;font-size:13px">Fontes:
+        <a href="https://www.totvs.com/blog/gestao-de-vendas/crm/" target="_blank" rel="noopener">[1]</a>
+        <a href="https://www.youtube.com/watch?v=Lce4NbyBunA" target="_blank" rel="noopener">[2]</a>
+        <a href="https://www.youtube.com/watch?v=i4xQyBtQ0mA&t=1" target="_blank" rel="noopener">[3]</a>
+      </p>
+    </div>
+
+    <div class="card">
+      <h3>Gestão de tarefas e agenda</h3>
+      <p style="margin:0">Organiza lembretes de follow-up, reuniões e próximos passos para não perder negociações.</p>
+      <p class="sub" style="margin:8px 0 0;font-size:13px">Fontes:
+        <a href="https://www.youtube.com/watch?v=UJ7LYCKbdLk&t=53" target="_blank" rel="noopener">[1]</a>
+        <a href="https://www.youtube.com/watch?v=Lce4NbyBunA" target="_blank" rel="noopener">[2]</a>
+        <a href="https://www.totvs.com/blog/gestao-de-vendas/crm/" target="_blank" rel="noopener">[3]</a>
+      </p>
+    </div>
+
+    <div class="card">
+      <h3>Automações e IA</h3>
+      <p style="margin:0">Automatiza tarefas repetitivas, alertas e o registro de atividades para reduzir trabalho manual.</p>
+      <p class="sub" style="margin:8px 0 0;font-size:13px">Fontes:
+        <a href="https://www.agendor.com.br/blog/ferramenta-crm/" target="_blank" rel="noopener">[1]</a>
+        <a href="https://www.youtube.com/watch?v=mK97eiV6iIU&t=325" target="_blank" rel="noopener">[2]</a>
+        <a href="https://www.youtube.com/watch?v=UJ7LYCKbdLk&t=53" target="_blank" rel="noopener">[3]</a>
+      </p>
+    </div>
+
+    <div class="card">
+      <h3>Relatórios e métricas</h3>
+      <p style="margin:0">Exibe indicadores como taxa de conversão, ciclo de vendas, previsão de receita e produtividade da equipe.</p>
+      <p class="sub" style="margin:8px 0 0;font-size:13px">Fontes:
+        <a href="https://www.rdstation.com/blog/vendas/ferramenta-crm/" target="_blank" rel="noopener">[1]</a>
+        <a href="https://www.youtube.com/watch?v=Lce4NbyBunA" target="_blank" rel="noopener">[2]</a>
+        <a href="https://www.totvs.com/blog/gestao-de-vendas/crm/" target="_blank" rel="noopener">[3]</a>
+      </p>
+    </div>
+
+    <div class="callout">
+      Escolha <b>uma</b> dessas ideias para experimentar, não as cinco de uma vez — o mesmo princípio de
+      "uma operação de cada vez" que vale desde o E05. Peça ao agente para propor antes de construir.
+    </div>
+  </section>
+
+  <footer>Mont Academy · Workshop Claude · Encontro 07. Prompts em <code>prompts/</code>.</footer>
+</div>
+<script>
+  document.querySelectorAll('.tab-btn').forEach(function(btn){ btn.addEventListener('click',function(){
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+    btn.classList.add('active'); document.getElementById(btn.dataset.tab).classList.add('active');
+  });});
+</script>
+<script>
+  (function(){
+    var KEY = 'mont-theme';
+    var root = document.documentElement;
+    var btn = document.getElementById('theme-toggle');
+    function apply(theme){
+      if (theme === 'light') { root.setAttribute('data-theme','light'); btn.textContent = '☀️ Claro'; }
+      else { root.removeAttribute('data-theme'); btn.textContent = '🌙 Escuro'; }
+    }
+    apply(localStorage.getItem(KEY) || 'dark');
+    btn.addEventListener('click', function(){
+      var next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+      localStorage.setItem(KEY, next);
+      apply(next);
+    });
+  })();
+</script>
+</body>
+</html>
