@@ -34,7 +34,7 @@ materiais/
 | 04 | `encontro-04` | LLM, Wiki e Agente de Código |
 | 05 | `encontro-05` | Modelagem de Dados e CRM |
 | 06 | `encontro-06` | Ingestão e Tratamento de Dados |
-| 07 | `encontro-07` | Dashboard, APIs e Alertas |
+| 07 | `encontro-07` | Interfaces e Vibe Coding |
 | 08 | `encontro-08` | Automação e Fluxo de Transcrição |
 | 09 | `encontro-09` | Revisão Humana e Reativação de Rede |
 | 10 | `encontro-10` | MCP Próprio e Operação |
